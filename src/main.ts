@@ -12,7 +12,7 @@ async function run() {
         const context: Context = github.context
 
         // Request the pull request diff from the GitHub API
-        const data = await octokit.rest.pulls.get({
+        const {data: prDiff} = await octokit.rest.pulls.get({
             owner: context.repo.owner,
             repo: context.repo.repo,
             // @ts-ignore
@@ -21,13 +21,16 @@ async function run() {
                 format: "diff",
             },
         });
-
-        let files : parseDiff.File[] = parseDiff(data['prDiff']);
+        console.log('##data', prDiff);
+        // @ts-ignore
+        let files : parseDiff.File[] = parseDiff(prDiff);
         let inputStringDiff: string = core.getInput('diffDoesNotContain');
         let diffDoesNotContain: Array<string> = JSON.parse(inputStringDiff);
 
         let filteredExtensions : Array<string>= JSON.parse(core.getInput("extensionsToCheck"));
+        console.log('##files', files);
         let result: prDiffResult= validate(files, filteredExtensions,diffDoesNotContain);
+        console.log('##result', result);
         if(!result.isDiffValid) {
             core.setFailed(`The PR should not include one of ${diffDoesNotContain.toString()}`);
         }
