@@ -20,6 +20,7 @@ export function validate(files: parseDiff.File[], filteredExtensions: Array<stri
             })
         })
     });
+
     if (forbiddenPattern.length > 0 && forbiddenPattern.some(pattern => changes.includes(pattern))) {
         return {'isDiffValid' : false, message: `The PR should not include one of ${forbiddenPattern.toString()}`};
     }
