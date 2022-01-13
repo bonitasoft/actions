@@ -1,0 +1,16 @@
+name: 'GitHub PR diff Checker'
+description: 'Checks PR diff for word occurrences'
+inputs:
+  github-token:
+    description: 'Github token'
+    required: true
+  diffDoesNotContain:
+    description: 'Array String that must not be in the PR diff'
+    required: true
+  extensionsToCheck:
+    description: 'Put extensions to check ex: `[".adoc",".yml"]`'
+    required: false
+
+runs:
+  using: 'node12'
+  main: 'dist/index.js'
