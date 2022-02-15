@@ -8,7 +8,7 @@ jobs:
     name: Check for forbidden string
     steps:
       - name: Scan forbidden string
-        uses: bonitasoft/pr-diff-checker-action@main
+        uses: bonitasoft/actions/packages/pr-diff-checker@main
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           diffDoesNotContain: '["http://documentation.mydomain","link:"]'
