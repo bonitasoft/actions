@@ -1,10 +1,10 @@
 name: 'List branches on repository'
 description: 'You can customize the message and the channel id.'
 inputs:
-  branche_regex:
-    description: 'The slack channel id'
+  branches_list:
+    description: 'Keep branch given in list (separate with ,)'
     required: true
-    default: '^master$|^dev$|^release-.*$'
+    default: 'master,dev,release-.*'
 outputs:
   branches:
     description: "Json object who contains each branch"
@@ -16,11 +16,6 @@ runs:
       uses: actions/checkout@v2
       with:
         fetch-depth: 0
-    - name: Install jq and jo
-      shell: bash
-      run: |
-        sudo apt-get update
-        sudo apt-get install jq jo
     - name: List branches
       shell: bash
       run: |
@@ -28,5 +23,13 @@ runs:
         git fetch
         readarray branches <<< $(git branch --remote --format='%(refname:lstrip=3)' | tr '\n' ' ' | awk '{$1=$1};1')
         json=$(jo -a $branches)
-        echo "##[set-output name=branches;]$(echo $json | jq -c 'map(select(test("${{inputs.branche_regex}}")))')"
+        
+        # Create regex from branches list input
+        pattern=""
+        for branch in $(echo ${{inputs.branches_list}} | tr "," "\n")
+        do
+          pattern="${pattern}^${branch}\$|"
+        done         
+        
+        echo "##[set-output name=branches;]$(echo $json | jq -c 'map(select(test("${pattern%?}")))')"
       id: extract_branches

@@ -4,9 +4,9 @@ This action will list and return branches in JSON filtered by input regex
 
 ## Input
 
-| Name          | Description                                                              |
-| ------------- |--------------------------------------------------------------------------|
-| `branche_regex` | The regex to list branch, example: ^master$&vert;^dev$&vert;^release-.*$ |
+| Name          | Description                                               |
+| ------------- |-----------------------------------------------------------|
+| `branches_list` | The list branches separate by `,`: master,dev,release-.*, |
 
 ## Output
 
@@ -37,7 +37,7 @@ jobs:
          - name: List branches on repository            
            uses: bonitasoft/actions/packages/list-branches@main
            with:
-            branche_regex: '^master$|^dev$|$release-.*$'
+            branches_list: 'master,dev,release-.*'
     download-l10n-from-crowdin:
       runs-on: ubuntu-20.04
       needs: list-branches
