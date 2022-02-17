@@ -10,7 +10,7 @@ jobs:
       - name: List branches on repository
         uses: bonitasoft/actions/packages/list-branches@main
         with:
-          branche_regex: '^main$|^test-flow$'
+          branches_list: 'main test-flow'
   display_branch_name:
     runs-on: ubuntu-20.04
     needs: list-branches
