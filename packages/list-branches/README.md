@@ -31,25 +31,27 @@ on:
   workflow-dispatch:    
 
 jobs:
-    list-branches:
+  list-branches:
       runs-on: ubuntu-20.04
+      outputs:
+        branches: ${{ steps.listBranches.outputs.branches }}
       steps:
-         - name: List branches on repository            
-           uses: bonitasoft/actions/packages/list-branches@main
-           with:
-            branches_list:
-              - dev
-              - master
-              - release-7.14.*
-              
-    download-l10n-from-crowdin:
+        - name: Checkout source
+          uses: actions/checkout@v2
+        - name: List branches on repository
+          id: listBranches
+          uses: bonitasoft/actions/packages/list-branches@main
+          with:
+            branches_list: "dev master release-7.14.*"
+
+  download-l10n-from-crowdin:
       runs-on: ubuntu-20.04
       needs: list-branches
       strategy:
         max-parallel: 1
         fail-fast: false
         matrix:
-          branch: ${{ fromJSON(needs.list-branches.outputs.branches) }}
+          branch: ${{ fromJSON(needs.listBranches.outputs.branches) }}
       steps:
         - name: Checkout Repo
           uses: actions/checkout@v2
