@@ -19,10 +19,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Install
-        run: |
-          cd packages/pr-diff-checker
-          npm install
-
-      - name: Run test
-        run: npm run test
+      - name: Install and Test
+        run: npm install && npm run test
+        working-directory: packages/pr-diff-checker
