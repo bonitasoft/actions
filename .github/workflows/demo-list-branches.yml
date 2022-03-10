@@ -1,0 +1,41 @@
+name: List branches and run matrix job
+
+on:
+  workflow_dispatch:
+    inputs:
+      branchesList:
+        description: 'Branches to run actions'
+        required: true
+        default: "dev master release-7.14.*"
+
+jobs:
+  list-branches:
+    runs-on: ubuntu-20.04
+    outputs:
+      branches: ${{ steps.listBranches.outputs.branches }}
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v2
+      - name: List branches on repository
+        id: listBranches
+        uses: bonitasoft/actions/packages/list-branches@main
+        with:
+          branches_list: ${{ inputs.branchesList }}
+
+  display_branch_name:
+    runs-on: ubuntu-20.04
+    needs: list-branches
+    strategy:
+      max-parallel: 2
+      fail-fast: false
+      matrix:
+        branch: ${{ fromJSON(needs.list-branches.outputs.branches) }}
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ matrix.branch }}
+          path: ./repo
+          fetch-depth: '1'
+      - name: Display branche name
+        run: echo "I'm come form ${{ matrix.branch}} branch."

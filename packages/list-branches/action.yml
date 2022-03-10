@@ -1,0 +1,34 @@
+name: 'List branches on repository'
+description: 'You can customize the message and the channel id.'
+inputs:
+  branches_list:
+    description: 'Keep branch given in list (separate by space)'
+    required: true
+    default: 'master dev release-.*'
+outputs:
+  branches:
+    description: "Json object who contains each branch"
+    value: ${{ steps.extract_branches.outputs.branches }}
+runs:
+  using: "composite"
+  steps:
+    - name: Install jo
+      shell: bash
+      run: |
+        sudo apt-get update
+        sudo apt-get install jo
+    - name: List branches
+      shell: bash
+      run: |
+        git remote set-branches origin '*'
+        git fetch
+        readarray branches <<< $(git branch --remote --format='%(refname:lstrip=3)' | tr '\n' ' ' | awk '{$1=$1};1')
+        
+        # Create json object from branch list
+        json=$(jo -a $branches | jq -c 'map(. | tostring)')
+        
+        #Create regex from input
+        regex=$(jo -a ${{inputs.branches_list}} | jq -c 'map(. | tostring | . |= "^"+ . +"$") | join("|")' | tr -d \")
+        echo final $(echo $json | jq -c --arg regex $regex 'map(select(test($regex)?))')
+        echo "::set-output name=branches::$(echo $json | jq -c --arg regex $regex 'map(select(test($regex)?))')"
+      id: extract_branches
