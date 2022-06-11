@@ -15,7 +15,7 @@ jobs:
       branches: ${{ steps.listBranches.outputs.branches }}
     steps:
       - name: Checkout source
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: List branches on repository
         id: listBranches
         uses: bonitasoft/actions/packages/list-branches@main
@@ -32,7 +32,7 @@ jobs:
         branch: ${{ fromJSON(needs.list-branches.outputs.branches) }}
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           ref: ${{ matrix.branch }}
           path: ./repo
