@@ -26,6 +26,9 @@ jobs:
             uses: bonitasoft/actions/packages/notify-slack@main
             with:
               CHANNEL_ID: ${{ secrets.SLACK_UID_CHANNEL_ID }}
-              MESSAGE: ":x: Build on branch ${{github.ref}} failed"
+              MESSAGE: |
+                :x: Build on branch ${{github.ref}} failed
+                
+                <https://github.com/bonitasoft/actions| Link example>
               SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
 ```
