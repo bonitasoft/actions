@@ -5,3 +5,6 @@
 /.idea/vcs.xml
 /.idea/workspace.xml
 /lib
+
+/packages/pr-diff-checker/node_modules
+/packages/pr-diff-checker/lib
