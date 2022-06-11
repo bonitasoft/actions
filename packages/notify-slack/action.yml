@@ -28,7 +28,7 @@ runs:
                       "type": "section",
                       "text": {
                           "type": "mrkdwn",
-                          "text": "${{inputs.MESSAGE}}"
+                          "text": "${{toJSON(inputs.MESSAGE)}}"
                       }
                   },
                   {
