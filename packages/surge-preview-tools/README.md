@@ -15,7 +15,7 @@ Limitations
 
 See [action.yml](./action.yml) for inputs and outputs.
 
-In the following, the outputs of the `surge-preview-tools` action are used to decide if the `surge-preview` action can be run.
+In the following, the outputs of the `surge-preview-tools` action are used to decide if the `surge-preview` action can run.
 
 ```yaml
 name: Surge Preview for Pull Request
