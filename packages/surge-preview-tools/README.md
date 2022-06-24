@@ -53,7 +53,6 @@ jobs:
           echo "This is a preview site for <b>PR #${PR_NUMBER}</b>" > site/index.html
       - name: Publish Demo preview
         if: steps.surge-preview-tools.outputs.can-run-surge-command == 'true'
-        id: publish_demo_preview
         uses: afc163/surge-preview@v1
         with:
           surge_token: ${{ secrets.SURGE_TOKEN }}
