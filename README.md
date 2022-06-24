@@ -1,6 +1,6 @@
-# Actions
+# Bonitasoft GitHub Actions
 
-Centralized repository for all of Event Bonita GitHub Actions used in our CI/CD pipelines
+Centralized repository providing GitHub Actions developed by Bonitasoft and used in our CI/CD pipelines.
 
 ## Usage
 
@@ -13,6 +13,8 @@ To use an action from this repository:
      uses: bonitasoft/actions/packages/notify-slack@TAGNAME
   [...]
 ```
+
+See the [actions list](packages) for more details
 
 ### Tags policies
 

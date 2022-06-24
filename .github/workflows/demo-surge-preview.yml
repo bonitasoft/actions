@@ -1,0 +1,74 @@
+name: Surge Preview for Pull Request
+
+on:
+  pull_request:
+    # To manage 'surge-preview' action teardown, add default event types + closed event type
+    types: [opened, synchronize, reopened, closed]
+    paths:
+      - 'packages/surge-preview-tools/**/*'
+
+permissions:
+  pull-requests: write
+
+jobs:
+  demo_valid_token:  # the id is used by surge to generate the surge url
+    runs-on: ubuntu-22.04
+    env:
+      SURGE_TOKEN: ${{ secrets.SURGE_TOKEN_DOC }}
+    steps:
+      # only required to access to the local github actions
+      - uses: actions/checkout@v3
+      - uses: ./packages/surge-preview-tools
+        id: surge-preview-tools
+        with:
+          surge-token: ${{ env.SURGE_TOKEN }}
+      - name: Echo surge preview tools output
+        run: |
+          echo "can-run-surge-command: ${{ steps.surge-preview-tools.outputs.can-run-surge-command }}"
+          echo "domain-exist: ${{ steps.surge-preview-tools.outputs.domain-exist }}" 
+          echo "preview-url: ${{ steps.surge-preview-tools.outputs.preview-url }}" 
+          echo "surge-token-valid: ${{ steps.surge-preview-tools.outputs.surge-token-valid }}"
+      - name: Build fake demo
+        if: ${{ github.event.action != 'closed' }}
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          mkdir site
+          echo "This is a preview site for <b>PR #${PR_NUMBER}</b>" > site/index.html
+      - name: Publish Demo preview
+        if: steps.surge-preview-tools.outputs.can-run-surge-command == 'true'
+        id: publish_demo_preview # used to have dedicated comment in the pull request
+        uses: afc163/surge-preview@v1
+        with:
+          surge_token: ${{ env.SURGE_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          dist: site
+          failOnError: true
+          teardown: true
+          build: |
+            ls -lh site
+
+  demo_invalid_token:
+    runs-on: ubuntu-22.04
+    env:
+      SURGE_TOKEN: invalid_surge_token_for_surge
+    steps:
+      # only required to access to the local github actions
+      - uses: actions/checkout@v3
+      - uses: ./packages/surge-preview-tools
+        id: surge-preview-tools
+        with:
+          surge-token: ${{ env.SURGE_TOKEN }}
+      - name: Publish Demo preview
+        if: steps.surge-preview-tools.outputs.can-run-surge-command == 'true'
+        id: publish_demo_preview_invalid_surge_token # used to have dedicated comment in the pull request
+        uses: afc163/surge-preview@v1
+        with:
+          surge_token: ${{ env.SURGE_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          dist: site
+          failOnError: true
+          teardown: true
+          # The surge token is invalid, so the surge-preview should not run.
+          # If it runs, the build will fail to detect that the surge-preview-tools has an issue.
+          build: invalid_command
