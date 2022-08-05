@@ -15,7 +15,7 @@ Limitations
 
 See [action.yml](./action.yml) for inputs and outputs.
 
-Example of using surge-preview-tools action to xxx the `surge-preview` action.
+In the following, the outputs of the `surge-preview-tools` action are used to decide if the `surge-preview` action can run.
 
 ```yaml
 name: Surge Preview for Pull Request
@@ -34,7 +34,7 @@ jobs:
       # This permission is only required by surge-preview when it is configured to create Pull Request comment
       pull-requests: write
     steps:
-      - uses: bonitasoft/actions/packages/surge-preview-tools/@TAGNAME
+      - uses: bonitasoft/actions/packages/surge-preview-tools@TAGNAME
         id: surge-preview-tools
         with:
           surge-token: ${{ secrets.SURGE_TOKEN }}
@@ -53,7 +53,6 @@ jobs:
           echo "This is a preview site for <b>PR #${PR_NUMBER}</b>" > site/index.html
       - name: Publish Demo preview
         if: steps.surge-preview-tools.outputs.can-run-surge-command == 'true'
-        id: publish_demo_preview
         uses: afc163/surge-preview@v1
         with:
           surge_token: ${{ secrets.SURGE_TOKEN }}
