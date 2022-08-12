@@ -14,8 +14,13 @@ try {
 
   // the token must be set
   const surgeToken = core.getInput('surge-token');
-  core.setSecret(surgeToken);
-  const isSurgeTokenValid = checkLogin(surgeToken);
+  let isSurgeTokenValid = false
+  if (!surgeToken) {
+    core.info(`The surge token is not set`)
+  } else {
+    core.setSecret(surgeToken);
+    isSurgeTokenValid = checkLogin(surgeToken);
+  }
   core.info(`surge token valid? ${isSurgeTokenValid}`)
   core.setOutput("surge-token-valid", isSurgeTokenValid);
 
