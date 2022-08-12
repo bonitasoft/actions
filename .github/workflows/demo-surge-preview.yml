@@ -5,6 +5,7 @@ on:
     # To manage 'surge-preview' action teardown, add default event types + closed event type
     types: [opened, synchronize, reopened, closed]
     paths:
+      - '.github/workflows/demo-surge-preview.yml'
       - 'packages/surge-preview-tools/**/*'
 
 permissions:
