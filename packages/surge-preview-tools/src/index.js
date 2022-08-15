@@ -1,8 +1,11 @@
 import * as core from '@actions/core';
 import * as github from "@actions/github";
-import {checkLogin, getDeploys} from "./surge-utils"
+import {checkLogin, getDeploys, getSurgeCliVersion} from "./surge-utils"
 
 try {
+  const surgeCliVersion = getSurgeCliVersion();
+  core.info(`Surge cli version: ${surgeCliVersion}`);
+
   const payload = github.context.payload;
   // Compute the 'preview url', as built by the surge-preview action
   const repoOwner = github.context.repo.owner.replace(/\./g, '-');

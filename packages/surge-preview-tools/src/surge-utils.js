@@ -10,6 +10,11 @@ const executeCmd = command => {
   return stripAnsi(result.toString()).trim();
 };
 
+export const getSurgeCliVersion = () => {
+  const output = executeCmd(`${surgeCli} --version`);
+  return output;
+}
+
 export const checkLogin = (surgeToken) => {
   try {
     executeCmd(`${surgeCli} list --token ${surgeToken}`);
