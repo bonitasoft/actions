@@ -16,7 +16,7 @@ To use an action from this repository:
 
 See the [actions list](packages) for more details
 
-### Release process
+## Release process
 
 Go to [GitHub release](https://github.com/bonitasoft/actions/releases)
 
@@ -25,11 +25,4 @@ Then
 - for tag, use **v**x.y.z (do not forget the trailing 'v')
 - for name, same value as tag without the 'v'
 - use the auto-generated release notes (do some cleanup if necessary)
-- publish to create the git tag and make the release publicly available
-
-<!--
-When you update or add an action don't forget to push a tag v1, v2, v3 etc 
--->
-
-## Troubleshooting
-Renamed from pr-diff-checker-action
+- publish to create the git tag and make the release publicly available. Major (v1, v2) and minor (v1.1, v1.2) tags will be automatically created
