@@ -1,5 +1,5 @@
+# If the tag is v2.4.8 (for example) then this action will create 2 additional tags (v2 and v2.4) and push it.
 name: Create major and minor git tags
-description: If the tag is v2.4.8 (for example) then this action will create 2 additional tags (v2 and v2.4) and push it.
 
 on:
   push:
