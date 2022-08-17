@@ -9046,6 +9046,11 @@ const executeCmd = command => {
   return stripAnsi(result.toString()).trim();
 };
 
+const getSurgeCliVersion = () => {
+  const output = executeCmd(`${surgeCli} --version`);
+  return output;
+}
+
 const checkLogin = (surgeToken) => {
   try {
     executeCmd(`${surgeCli} list --token ${surgeToken}`);
@@ -9085,6 +9090,9 @@ const getDeploys = surgeToken => {
 
 
 try {
+  const surgeCliVersion = getSurgeCliVersion();
+  core.info(`Surge cli version: ${surgeCliVersion}`);
+
   const payload = github.context.payload;
   // Compute the 'preview url', as built by the surge-preview action
   const repoOwner = github.context.repo.owner.replace(/\./g, '-');
