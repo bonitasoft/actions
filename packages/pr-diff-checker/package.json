@@ -29,7 +29,7 @@
     "parse-diff": "^0.9.0"
   },
   "devDependencies": {
-    "@types/jest": "^28.1.5",
+    "@types/jest": "^28.1.8",
     "@types/node": "^18.6.4",
     "jest": "^28.1.3",
     "ts-jest": "^28.0.7",
