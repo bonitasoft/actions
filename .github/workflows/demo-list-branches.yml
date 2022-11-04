@@ -18,7 +18,7 @@ jobs:
         uses: actions/checkout@v3
       - name: List branches on repository
         id: listBranches
-        uses: bonitasoft/actions/packages/list-branches@main
+        uses: bonitasoft/actions/packages/list-branches@v1.3.1
         with:
           branches_list: ${{ inputs.branchesList }}
 
