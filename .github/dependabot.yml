@@ -14,13 +14,3 @@ updates:
     commit-message:
       prefix: "chore"
       include: "scope"
-
-  # Maintain dependencies for NPM
-  - package-ecosystem: "npm" 
-    directory: "/packages/pr-diff-checker" 
-    target-branch: main
-    schedule:
-      interval: "daily"
-    commit-message:
-      prefix: "chore"
-      include: "scope"
