@@ -6,7 +6,7 @@ on:
       branchesList:
         description: 'Branches to run actions'
         required: true
-        default: "dev master release-7.14.*"
+        default: "main"
 
 jobs:
   list-branches:
@@ -15,7 +15,7 @@ jobs:
       branches: ${{ steps.listBranches.outputs.branches }}
     steps:
       - name: Checkout source
-        uses: actions/checkout@v3
+        uses: actions/checkout@v3 # access to the local action and list branches of this repository
       - name: List branches on repository
         id: listBranches
         uses: ./packages/list-branches # local action
