@@ -29,6 +29,6 @@ runs:
         
         #Create regex from input
         regex=$(jo -a ${{inputs.branches_list}} | jq -c 'map(. | tostring | . |= "^"+ . +"$") | join("|")' | tr -d \")
-        echo final $(echo $json | jq -c --arg regex $regex 'map(select(test($regex)?))')
+        echo Computed branch list $(echo $json | jq -c --arg regex $regex 'map(select(test($regex)?))')
         echo "::set-output name=branches::$(echo $json | jq -c --arg regex $regex 'map(select(test($regex)?))')"
       id: extract_branches
