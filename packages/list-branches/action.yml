@@ -29,7 +29,8 @@ runs:
         
         # Create regex from input
         regex=$(jo -a ${{inputs.branches_list}} | jq -c 'map(. | tostring | . |= "^"+ . +"$") | join("|")' | tr -d \")
-        echo Computed branch list $(echo $json | jq -c --arg regex $regex 'map(select(test($regex)?))')
+        branchList=$(echo $json | jq -c --arg regex $regex 'map(select(test($regex)?))')
+        echo "Computed branch list: $branchList" 
         # set the output
-        echo "branches=$(echo $json | jq -c --arg regex $regex 'map(select(test($regex)?))')" >> $GITHUB_OUTPUT
+        echo "branches=$branchList" >> $GITHUB_OUTPUT
       id: extract_branches
