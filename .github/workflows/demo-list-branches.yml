@@ -38,4 +38,7 @@ jobs:
           path: ./repo
           fetch-depth: '1'
       - name: Display branch name
-        run: echo "I'm come form ${{ matrix.branch}} branch."
+        working-directory: ./repo
+        run: |
+          echo "I'm supposed to be the ${{ matrix.branch}} branch."
+          git status
