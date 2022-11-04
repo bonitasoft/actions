@@ -27,14 +27,16 @@ jobs:
 An example is also provided in .github/workflows/ in this repository.
 
 
-## Release a new version
+## Development
 
-To release a new version:
-* upgrade the field `version` in the package.json.
+**Node version**: see the [.nvmrc](.nvmrc) file 
+
+As for all JavaScript actions, the `dist` folder must be committed.
+
+So when changing the JS code or when updating the production dependencies (that are bundled in the final distribution),
+please regenerate the content of the `dist` folder.
 * Run `npm ci && npm run package`
 * Commit the dist folder
-* From this commit, tag the repository and push commit and tag.
-* You can now use this version in your GitHub action.
 
 
 ## License

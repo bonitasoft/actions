@@ -1,6 +1,7 @@
 {
   "name": "gh-pr-diff-checker",
-  "version": "1.0.0",
+  "version": "0.0.0",
+  "private": true,
   "description": "Action that checks whether the body or diff in a PR contains a specific forbidden expression.",
   "main": "dist/index.js",
   "scripts": {
