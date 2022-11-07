@@ -67,6 +67,8 @@ jobs:
 
 ## Build
 
+**Node version**: see the [.nvmrc](.nvmrc) file
+
 `npm run build`
 
 When committing, do not forget to add the `dist` folder.
