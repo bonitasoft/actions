@@ -1,6 +1,6 @@
-# `notify-slack` - **Github Action**
+# `notify-slack` - **GitHub Action**
 
-This action will send a slack message
+This action will send a Slack message
 
 ## Input
 
@@ -23,9 +23,9 @@ jobs:
         steps:
           - name: Send message to Slack channel
             if: ${{ failure() }}
-            uses: bonitasoft/actions/packages/notify-slack@main
+            uses: bonitasoft/actions/packages/notify-slack@TAGNAME
             with:
-              CHANNEL_ID: ${{ secrets.SLACK_UID_CHANNEL_ID }}
+              CHANNEL_ID: ${{ secrets.SLACK_CHANNEL_ID }}
               MESSAGE: |
                 :x: Build on branch ${{github.ref}} failed
                 
