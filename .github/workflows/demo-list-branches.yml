@@ -6,24 +6,24 @@ on:
       branchesList:
         description: 'Branches to run actions'
         required: true
-        default: "dev master release-7.14.*"
+        default: "main"
 
 jobs:
   list-branches:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     outputs:
       branches: ${{ steps.listBranches.outputs.branches }}
     steps:
       - name: Checkout source
-        uses: actions/checkout@v3
+        uses: actions/checkout@v3 # access to the local action and list branches of this repository
       - name: List branches on repository
         id: listBranches
-        uses: bonitasoft/actions/packages/list-branches@v1.3.1
+        uses: ./packages/list-branches # local action
         with:
           branches_list: ${{ inputs.branchesList }}
 
-  display_branch_name:
-    runs-on: ubuntu-20.04
+  checkout_branch_list:
+    runs-on: ubuntu-22.04
     needs: list-branches
     strategy:
       max-parallel: 2
@@ -37,5 +37,8 @@ jobs:
           ref: ${{ matrix.branch }}
           path: ./repo
           fetch-depth: '1'
-      - name: Display branche name
-        run: echo "I'm come form ${{ matrix.branch}} branch."
+      - name: Display branch name
+        working-directory: ./repo
+        run: |
+          echo "I'm supposed to be the ${{ matrix.branch}} branch."
+          git status
