@@ -1,10 +1,11 @@
-name: Enforce Conventional Commits in Pull Request title
-description: TODO
+name: Check the Pull Request title
+description: Check that the Pull Request title follow the 'Conventional Commits' requirements
 
 runs:
   using: "composite"
   steps:
-    - shell: bash
-      run: echo
-
+    - uses: jef/conventional-commits-pr-action@v1
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        # TODO configure the comments
 
