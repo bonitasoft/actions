@@ -1,11 +1,25 @@
 name: Check the Pull Request title
 description: Check that the Pull Request title follow the 'Conventional Commits' requirements
 
+inputs:
+  github-token:
+    description: ''
+    required: true
+  comment:
+    description: >
+      This input controls where the error messages and the fix suggestions are produced.
+      If 'true', create a Pull Request comment.
+      If 'false', add the messages in the GitHub Actions logs.
+      If 'auto', acts like 'false' for Pull Request created from forked repositories. Otherwise, acts like 'true'
+    required: true
+    default: 'auto'
+
 runs:
   using: "composite"
   steps:
     - uses: jef/conventional-commits-pr-action@v1
       with:
-        token: ${{ secrets.GITHUB_TOKEN }}
+        token: ${{ inputs.github-token }}
         # TODO configure the comments
+        comment: false
 
