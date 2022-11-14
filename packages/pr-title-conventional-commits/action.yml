@@ -17,6 +17,9 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - name: Log Pull Request Title
+      shell: bash
+      run: echo Checking PR Title:: "${{ github.event.title }}"
     - uses: jef/conventional-commits-pr-action@v1
       with:
         token: ${{ inputs.github-token }}
