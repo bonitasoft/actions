@@ -58,6 +58,12 @@ runs:
           console.log('PR head', context.payload.pull_request.head)
           console.log('Payload repository', context.payload.repository)
           console.log('repo', context.repo)
+          
+          const head = context.payload?.pull_request?.head
+          const isForked = head?.repo?.fork
+          console.log('isForked', isForked);
+          
+          
           return effectiveCommentSettings
     - uses: jef/conventional-commits-pr-action@v1
       with:
