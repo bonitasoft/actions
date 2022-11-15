@@ -31,24 +31,10 @@ runs:
         COMMENT_CONFIG: ${{ inputs.comment }}
       with:
         result-encoding: string
-        # TODO implement logic
-        # info from https://github.com/danger/danger-js/issues/918#issuecomment-645814203 that may help to detect that the PR is created from a fork
-        # const headRepoName = danger.github.pr.head.repo.full_name
-        #const baseRepoName = danger.github.pr.base.repo.full_name
-        #
-        #if headRepoName != baseRepoName {
-        #  // This is shown inline in the output
-        #  console.log("\033[1;31mRunning from a forked repo. Danger won't be able to post comments on the main repo unless GitHub Actions are enabled on the fork, too.\033[0m")
-        #
-        #  // This is shown inline in the output and also integrates with the GitHub
-        #  // Action reporting UI and produces a warning
-        #  console.log("##[warning]Running from a forked repo. Danger won't be able to post comments on the main repo unless GitHub Actions are enabled on the fork, too.\033[0m")
-        #}
         script: |
           const { COMMENT_CONFIG } = process.env
           core.info(`Original comment config: ${COMMENT_CONFIG}`);
-          //console.log(`Original comment config: ${COMMENT_CONFIG}`)
-          
+
           if(COMMENT_CONFIG == 'true') {
             core.info('Configured to always create Pull Request comment')
             return 'true';
@@ -59,36 +45,25 @@ runs:
             // conditions for 'auto':
             // event = pull_request AND not from a fork
             // event = pull_request_target          
-          
             const eventName = context.eventName
-            core.info(`Event name: ${eventName}`)
             if (eventName == 'pull_request_target') {
-              core.info('pull_request_target, so returns true')
+              core.info('pull_request_target event, so returns true')
               return 'true';
             } else if (eventName == 'pull_request') {
-              core.info('pull_request, detecting the origin of the Pull Request')
+              core.info('pull_request event, detecting the origin of the Pull Request')
               // Detect if the PR is created from a forked repository
               const head = context.payload?.pull_request?.head
               const isForkedRepository = head?.repo?.fork
-              //console.log('isForkedRepository', isForkedRepository);
               core.info(`Pull Request created from a forked repository? ${isForkedRepository}`);
-              core.info(`Configured to create Pull Request comment? ${isForkedRepository}`);
-              return isForkedRepository;
+              const usePrComment = !isForkedRepository
+              core.info(`Configured to create Pull Request comment? ${usePrComment}`);
+              return usePrComment;
             }
           }
+
           // Other case
           core.info('Configured to only log')
           return 'false';
-          
-          //let effectiveCommentSettings = COMMENT_CONFIG == 'true' || COMMENT_CONFIG == 'auto'
-          
-          //console.log(`effectiveCommentSettings: ${effectiveCommentSettings}`)
-          //console.log(context)
-          //console.log('PR owner', context.payload.pull_request.owner)
-          //console.log('PR head', context.payload.pull_request.head)
-          //console.log('Payload repository', context.payload.repository)
-          //console.log('repo', context.repo)
-          // return effectiveCommentSettings
     - uses: jef/conventional-commits-pr-action@v1
       with:
         token: ${{ inputs.github-token }}
