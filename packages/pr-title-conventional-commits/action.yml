@@ -62,7 +62,7 @@ runs:
           }
 
           // Other case
-          core.info('Configured to only log')
+          core.info('Configured to only log!')
           return 'false';
     - uses: jef/conventional-commits-pr-action@v1
       with:
