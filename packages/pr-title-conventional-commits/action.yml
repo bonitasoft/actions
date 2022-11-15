@@ -38,7 +38,7 @@ runs:
           let effectiveCommentSettings = COMMENT_CONFIG == 'true' || COMMENT_CONFIG == 'auto'
           console.log(`effectiveCommentSettings: ${effectiveCommentSettings}`)
           //console.log(context)
-          // context.payload.pull_request
+          console.log('owner', context.payload.pull_request.owner)
           return effectiveCommentSettings
     - uses: jef/conventional-commits-pr-action@v1
       with:
