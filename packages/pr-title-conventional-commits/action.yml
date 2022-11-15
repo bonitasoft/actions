@@ -3,7 +3,7 @@ description: Check that the Pull Request title follow the 'Conventional Commits'
 
 inputs:
   github-token:
-    description: ''
+    description: 'The token used to create Pull Request comment when the title does not follow requirements'
     required: true
     default: ${{ github.token }}
   comment:
