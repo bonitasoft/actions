@@ -16,6 +16,10 @@ To use an action from this repository:
 
 See the [actions list](packages) for more details
 
+## Available tags
+
+**_TODO_**
+
 ## Release process
 
 Go to [GitHub release](https://github.com/bonitasoft/actions/releases)
