@@ -44,6 +44,4 @@ jobs:
     steps:
       - name: Check Pull Request title
         uses: bonitasoft/actions/packages/pr-title-conventional-commits@TAGNAME
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
 ```

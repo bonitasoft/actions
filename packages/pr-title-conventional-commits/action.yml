@@ -5,6 +5,7 @@ inputs:
   github-token:
     description: ''
     required: true
+    default: ${{ github.token }}
   comment:
     description: >
       This input controls where the error messages and the fix suggestions are produced.
@@ -31,5 +32,5 @@ runs:
       with:
         token: ${{ inputs.github-token }}
         # TODO configure the comments
-        comment: false
+        comment: true
 
