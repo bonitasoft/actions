@@ -32,14 +32,31 @@ runs:
       with:
         result-encoding: string
         # TODO implement logic
+        # info from https://github.com/danger/danger-js/issues/918#issuecomment-645814203 that may help to detect that the PR is created from a fork
+        # const headRepoName = danger.github.pr.head.repo.full_name
+        #const baseRepoName = danger.github.pr.base.repo.full_name
+        #
+        #if headRepoName != baseRepoName {
+        #  // This is shown inline in the output
+        #  console.log("\033[1;31mRunning from a forked repo. Danger won't be able to post comments on the main repo unless GitHub Actions are enabled on the fork, too.\033[0m")
+        #
+        #  // This is shown inline in the output and also integrates with the GitHub
+        #  // Action reporting UI and produces a warning
+        #  console.log("##[warning]Running from a forked repo. Danger won't be able to post comments on the main repo unless GitHub Actions are enabled on the fork, too.\033[0m")
+        #}
         script: |
           const { COMMENT_CONFIG } = process.env
           console.log(`Original comment config: ${COMMENT_CONFIG}`)
+          // conditions for 'auto':
+          // event = pull_request AND not from a fork
+          // event = pull_request_target
           let effectiveCommentSettings = COMMENT_CONFIG == 'true' || COMMENT_CONFIG == 'auto'
+          
           console.log(`effectiveCommentSettings: ${effectiveCommentSettings}`)
           //console.log(context)
           console.log('PR owner', context.payload.pull_request.owner)
-          console.log('Payload repo', context.payload.repository)
+          console.log('PR head', context.payload.pull_request.head)
+          console.log('Payload repository', context.payload.repository)
           console.log('repo', context.repo)
           return effectiveCommentSettings
     - uses: jef/conventional-commits-pr-action@v1
