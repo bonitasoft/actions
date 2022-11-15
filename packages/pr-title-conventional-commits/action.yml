@@ -24,8 +24,8 @@ runs:
         PR_TITLE: ${{ github.event.pull_request.title }}
       shell: bash
       run: echo Checking PR Title "${PR_TITLE}"
-    - uses: actions/github-script@v6
-      name: Compute 'comment' settings
+    - name: Compute 'comment' settings
+      uses: actions/github-script@v6
       id: set-pr-comment-option
       env:
         COMMENT_CONFIG: ${{ inputs.comment }}
@@ -35,8 +35,11 @@ runs:
         script: |
           const { COMMENT_CONFIG } = process.env
           console.log(`Original comment config: ${COMMENT_CONFIG}`)
-          console.log(context)
-          return "true"
+          let effectiveCommentSettings = COMMENT_CONFIG == 'true' || COMMENT_CONFIG == 'auto'
+          console.log(`effectiveCommentSettings: ${effectiveCommentSettings}`)
+          //console.log(context)
+          // context.payload.pull_request
+          return effectiveCommentSettings
     - uses: jef/conventional-commits-pr-action@v1
       with:
         token: ${{ inputs.github-token }}
