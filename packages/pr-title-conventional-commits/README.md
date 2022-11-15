@@ -2,7 +2,7 @@
 
 Check that the Pull Request title follows guidelines of [Conventional Commits v1.0.0](https://www.conventionalcommits.org/en/v1.0.0/).
 
-Also has the ability to post a comment in the pull request conversation with examples.
+This action also has the ability to post a comment in the Pull Request conversation with examples, when the PR title is wrong.
 
 ![image](https://user-images.githubusercontent.com/12074633/108867820-91325700-75c3-11eb-8820-4b55abe01c35.png)
 
@@ -15,10 +15,11 @@ We want the commits to conform to `Conventional Commits`, so checking the PR tit
 
 **Why developing a new action?**
 
-[conventional-commits-pr-action](https://github.com/jef/conventional-commits-pr-action) is great, but we want to have other defaults and more features.
-
 Having a dedicated action also helps us to change the implementation transparently for the repositories that consumes it, without having
 to change every repository configuration if a better action emerges.
+
+This action uses [conventional-commits-pr-action](https://github.com/jef/conventional-commits-pr-action) under the hood. It set other defaults and
+provide more features.
 
 ## Usage
 
