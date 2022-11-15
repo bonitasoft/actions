@@ -7,18 +7,22 @@ Centralized repository providing GitHub Actions developed by Bonitasoft and used
 To use an action from this repository:
 
 ```yaml
- [...]
  steps:
    - name: Send message to Slack channel
      uses: bonitasoft/actions/packages/notify-slack@TAGNAME
-  [...]
 ```
 
 See the [actions list](packages) for more details
 
 ## Available tags
 
-**_TODO_**
+This repository follow [Semantic Versioning](https://semver.org/) and tags follow the `vX.Y.Z` patterns. In addition, the repository also provides tags for major and minor versions.
+
+For example
+- when releasing version `1.1.1`, the following tags are available: `v1.1.1`, `v1.1` and `v1`
+- then when releasing version `1.1.2`, a new `v1.1.2` tag is created. The `v1.1` and `v1` tags are updated to reference the tag of the newly released version.
+
+The list of tags is available in the [repository at GitHub](https://github.com/bonitasoft/actions/tags). 
 
 ## Release process
 
