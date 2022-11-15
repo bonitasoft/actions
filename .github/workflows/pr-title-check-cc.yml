@@ -2,8 +2,7 @@ name: Check Pull Request title
 
 on:
   pull_request:
-    # TODO remove synchronize (only to test action while implementing)
-    types: [opened, edited, reopened, synchronize]
+    types: [opened, edited, reopened]
 
 jobs:
   pr-title:
