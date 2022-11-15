@@ -17,8 +17,6 @@ inputs:
 
 runs:
   using: "composite"
-#  env:
-#    POST_PR_COMMENT: ${{}}
   steps:
     - name: Log Pull Request Title
       env:
@@ -26,11 +24,21 @@ runs:
         PR_TITLE: ${{ github.event.pull_request.title }}
       shell: bash
       run: echo Checking PR Title "${PR_TITLE}"
-#    - name: Compute 'comment' settings
-#      uses:
+    - uses: actions/github-script@v6
+      name: Compute 'comment' settings
+      id: set-pr-comment-option
+      env:
+        COMMENT_CONFIG: ${{ inputs.comment }}
+      with:
+        result-encoding: string
+        # TODO implement logic
+        script: |
+          const { COMMENT_CONFIG } = process.env
+          console.log(`Original comment config: ${COMMENT_CONFIG}`)
+          console.log(context)
+          return "true"
     - uses: jef/conventional-commits-pr-action@v1
       with:
         token: ${{ inputs.github-token }}
-        # TODO configure the comments
-        comment: true
+        comment: ${{ steps.set-pr-comment-option.outputs.result }}
 
