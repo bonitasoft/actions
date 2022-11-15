@@ -16,10 +16,17 @@ inputs:
 
 runs:
   using: "composite"
+#  env:
+#    POST_PR_COMMENT: ${{}}
   steps:
     - name: Log Pull Request Title
+      env:
+        # use env var as suggested in https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions#using-an-intermediate-environment-variable
+        TITLE: ${{ github.event.pull_request.title }}
       shell: bash
-      run: echo Checking PR Title "${{ github.event.pull_request.title }}"
+      run: echo Checking PR Title "$TITLE"
+#    - name: Compute 'comment' settings
+#      uses:
     - uses: jef/conventional-commits-pr-action@v1
       with:
         token: ${{ inputs.github-token }}
