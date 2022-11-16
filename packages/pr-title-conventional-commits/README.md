@@ -52,3 +52,8 @@ jobs:
         uses: bonitasoft/actions/packages/pr-title-conventional-commits@TAGNAME
 ```
 
+In the example above, the workflow can also be triggered on the `pull_request_target` event. This allows to create comments when the Pull Request is created from a forked repository.
+
+Using `pull_request_target` is valid here as the workflow doesn't generate anything from the code, it only checks the Pull Request metadata , see
+- https://github.blog/2020-08-03-github-actions-improvements-for-fork-and-pull-request-workflows/#improvements-for-public-repository-forks
+- https://securitylab.github.com/research/github-actions-preventing-pwn-requests/
