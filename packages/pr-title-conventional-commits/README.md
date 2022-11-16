@@ -18,8 +18,12 @@ We want the commits to conform to `Conventional Commits`, so checking the PR tit
 Having a dedicated action also helps us to change the implementation transparently for the repositories that consumes it, without having
 to change every repository configuration if a better action emerges.
 
+In the past, Bonitasoft repositories were using various public actions and the checks done by these actions were not the same. We expect more consistency with this new action.
+For more details about the actions previously used and their limitations, see [bonita-documentation-site#422](https://github.com/bonitasoft/bonita-documentation-site/issues/422) and [#82](https://github.com/bonitasoft/actions/issues/82).
+
 This action uses [conventional-commits-pr-action](https://github.com/jef/conventional-commits-pr-action) under the hood. It set other defaults and
 provide more features.
+
 
 ## Usage
 
@@ -29,6 +33,7 @@ See [action.yml](./action.yml) for inputs and outputs.
 ### Permissions
 
 When setting the `comment` input to `true` or `auto` (default), set the `pull-requests` permission to `write`.
+
 
 ### Example
 
@@ -46,3 +51,4 @@ jobs:
       - name: Check Pull Request title
         uses: bonitasoft/actions/packages/pr-title-conventional-commits@TAGNAME
 ```
+
