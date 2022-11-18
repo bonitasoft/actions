@@ -1,0 +1,71 @@
+name: Check the Pull Request title
+description: Check that the Pull Request title follow the 'Conventional Commits' requirements
+
+inputs:
+  github-token:
+    description: 'The token used to create Pull Request comment when the title does not follow requirements'
+    required: true
+    default: ${{ github.token }}
+  comment:
+    description: >
+      This input controls where the error messages and the fix suggestions are produced.
+      If 'true', create a Pull Request comment.
+      If 'false', add the messages in the GitHub Actions logs.
+      If 'auto', acts like 'false' for Pull Request created from forked repositories. Otherwise, acts like 'true'
+    required: true
+    default: 'auto'
+
+runs:
+  using: "composite"
+  steps:
+    - name: Log Pull Request Title
+      env:
+        # use env var as suggested in https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions#using-an-intermediate-environment-variable
+        PR_TITLE: ${{ github.event.pull_request.title }}
+      shell: bash
+      run: echo Checking PR Title "${PR_TITLE}"
+    - name: Compute 'comment' settings
+      uses: actions/github-script@v6
+      id: set-pr-comment-option
+      env:
+        COMMENT_CONFIG: ${{ inputs.comment }}
+      with:
+        result-encoding: string
+        script: |
+          const { COMMENT_CONFIG } = process.env
+          core.info(`Original comment config: ${COMMENT_CONFIG}`);
+
+          if(COMMENT_CONFIG == 'true') {
+            core.info('Configured to always create Pull Request comment')
+            return 'true';
+          }
+
+          if(COMMENT_CONFIG == 'auto') {
+            core.info('Auto settings, computing the actual configuration')
+            // conditions for 'auto':
+            // event = pull_request AND not from a fork
+            // event = pull_request_target          
+            const eventName = context.eventName
+            if (eventName == 'pull_request_target') {
+              core.info('pull_request_target event, so returns true')
+              return 'true';
+            } else if (eventName == 'pull_request') {
+              core.info('pull_request event, detecting the origin of the Pull Request')
+              // Detect if the PR is created from a forked repository
+              const head = context.payload?.pull_request?.head
+              const isForkedRepository = head?.repo?.fork
+              core.info(`Pull Request created from a forked repository? ${isForkedRepository}`);
+              const usePrComment = !isForkedRepository
+              core.info(`Configured to create Pull Request comment? ${usePrComment}`);
+              return usePrComment;
+            }
+          }
+
+          // Other case
+          core.info('Configured to only log')
+          return 'false';
+    - uses: jef/conventional-commits-pr-action@v1
+      with:
+        token: ${{ inputs.github-token }}
+        comment: ${{ steps.set-pr-comment-option.outputs.result }}
+
