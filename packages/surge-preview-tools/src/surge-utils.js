@@ -2,6 +2,7 @@
 // released under the MIT license
 import stripAnsi from "strip-ansi";
 import {execSync} from 'node:child_process'
+import * as core from '@actions/core';
 
 const surgeCli = 'npx surge';
 
@@ -11,15 +12,15 @@ const executeCmd = command => {
 };
 
 export const getSurgeCliVersion = () => {
-  const output = executeCmd(`${surgeCli} --version`);
-  return output;
+  return executeCmd(`${surgeCli} --version`);
 }
 
-export const checkLogin = (surgeToken) => {
+export const checkLogin = surgeToken => {
   try {
     executeCmd(`${surgeCli} list --token ${surgeToken}`);
     return true;
   } catch (e) {
+    core.debug(`Check login failed: ${e}`);
     return false;
   }
 };

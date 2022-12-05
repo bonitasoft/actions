@@ -9717,6 +9717,7 @@ const external_node_child_process_namespaceObject = require("node:child_process"
 
 
 
+
 const surgeCli = 'npx surge';
 
 const executeCmd = command => {
@@ -9725,15 +9726,15 @@ const executeCmd = command => {
 };
 
 const getSurgeCliVersion = () => {
-  const output = executeCmd(`${surgeCli} --version`);
-  return output;
+  return executeCmd(`${surgeCli} --version`);
 }
 
-const checkLogin = (surgeToken) => {
+const checkLogin = surgeToken => {
   try {
     executeCmd(`${surgeCli} list --token ${surgeToken}`);
     return true;
   } catch (e) {
+    core.debug(`Check login failed: ${e}`);
     return false;
   }
 };
