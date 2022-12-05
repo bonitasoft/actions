@@ -9719,7 +9719,7 @@ const external_node_child_process_namespaceObject = require("node:child_process"
 
 
 const executeSurgeCliCmd = command => {
-  core.debug(`Running surge cli command with arguments ${command}`);
+  core.debug(`Running surge cli command with arguments "${command}"`);
   const commandElements = command.split(' ');
   let result = (0,external_node_child_process_namespaceObject.spawnSync)('npx',  ['surge', ...commandElements])
 
@@ -9730,7 +9730,10 @@ const executeSurgeCliCmd = command => {
   if (result.status === 0) {
     return stripAnsi(result.stdout.toString()).trim();
   }
-  throw new Error(`Surge command failed '${command}'. Details: ${result.stderr.toString()}`)
+  throw new Error(`Surge command failed '${command}'. Exit status: ${result.status}.
+Details:
+${result.stdout.toString()}
+${result.stderr.toString()}`)
 };
 
 const getSurgeCliVersion = () => {

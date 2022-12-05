@@ -5,7 +5,7 @@ import {spawnSync} from 'node:child_process'
 import * as core from '@actions/core';
 
 const executeSurgeCliCmd = command => {
-  core.debug(`Running surge cli command with arguments ${command}`);
+  core.debug(`Running surge cli command with arguments "${command}"`);
   const commandElements = command.split(' ');
   let result = spawnSync('npx',  ['surge', ...commandElements])
 
@@ -16,7 +16,10 @@ const executeSurgeCliCmd = command => {
   if (result.status === 0) {
     return stripAnsi(result.stdout.toString()).trim();
   }
-  throw new Error(`Surge command failed '${command}'. Details: ${result.stderr.toString()}`)
+  throw new Error(`Surge command failed '${command}'. Exit status: ${result.status}.
+Details:
+${result.stdout.toString()}
+${result.stderr.toString()}`)
 };
 
 export const getSurgeCliVersion = () => {
