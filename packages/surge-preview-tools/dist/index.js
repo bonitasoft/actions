@@ -9718,32 +9718,39 @@ const external_node_child_process_namespaceObject = require("node:child_process"
 
 
 
-const surgeCli = 'npx surge';
+const executeSurgeCliCmd = command => {
+  core.debug(`Running surge cli command with arguments ${command}`);
+  const commandElements = command.split(' ');
+  let result = (0,external_node_child_process_namespaceObject.spawnSync)('npx',  ['surge', ...commandElements])
 
-const executeCmd = command => {
-  const result = (0,external_node_child_process_namespaceObject.execSync)(command);
-  return stripAnsi(result.toString()).trim();
+  core.debug(`STATUS ${result.status}`);
+  core.debug(`STDOUT ${result.stdout.toString()}`);
+  core.debug(`STDERR ${result.stderr.toString()}`);
+
+  if (result.status === 0) {
+    return stripAnsi(result.stdout.toString()).trim();
+  }
+  throw new Error(`Surge command failed '${command}'. Details: ${result.stderr.toString()}`)
 };
 
 const getSurgeCliVersion = () => {
-  return executeCmd(`${surgeCli} --version`);
+  return executeSurgeCliCmd(`--version`);
 }
 
 const checkLogin = surgeToken => {
-  let checkLoginOutput;
   try {
-    checkLoginOutput = executeCmd(`${surgeCli} list --token ${surgeToken}`);
+    const result = executeSurgeCliCmd(`list --token ${surgeToken}`);
+    core.debug(`Check login result: ${result}`);
     return true;
   } catch (e) {
-    core.debug('Check login failed');
-    core.debug(checkLoginOutput);
+    core.debug(`Check login failed: ${e}`);
     return false;
   }
 };
 
 // Adapted here to pass the surge token
 const getDeploys = surgeToken => {
-  const surgeListOutput = executeCmd(`${surgeCli} list --token ${surgeToken}`);
+  const surgeListOutput = executeSurgeCliCmd(`list --token ${surgeToken}`);
   const lines =
     surgeListOutput
       .split("\n")

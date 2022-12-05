@@ -1,35 +1,42 @@
 // The following is adapted from https://github.com/adrianjost/actions-surge.sh-teardown/blob/fc7c144291330755517b28a873139fcc11327cd8/index.js#L17
 // released under the MIT license
 import stripAnsi from "strip-ansi";
-import {execSync} from 'node:child_process'
+import {spawnSync} from 'node:child_process'
 import * as core from '@actions/core';
 
-const surgeCli = 'npx surge';
+const executeSurgeCliCmd = command => {
+  core.debug(`Running surge cli command with arguments ${command}`);
+  const commandElements = command.split(' ');
+  let result = spawnSync('npx',  ['surge', ...commandElements])
 
-const executeCmd = command => {
-  const result = execSync(command);
-  return stripAnsi(result.toString()).trim();
+  core.debug(`STATUS ${result.status}`);
+  core.debug(`STDOUT ${result.stdout.toString()}`);
+  core.debug(`STDERR ${result.stderr.toString()}`);
+
+  if (result.status === 0) {
+    return stripAnsi(result.stdout.toString()).trim();
+  }
+  throw new Error(`Surge command failed '${command}'. Details: ${result.stderr.toString()}`)
 };
 
 export const getSurgeCliVersion = () => {
-  return executeCmd(`${surgeCli} --version`);
+  return executeSurgeCliCmd(`--version`);
 }
 
 export const checkLogin = surgeToken => {
-  let checkLoginOutput;
   try {
-    checkLoginOutput = executeCmd(`${surgeCli} list --token ${surgeToken}`);
+    const result = executeSurgeCliCmd(`list --token ${surgeToken}`);
+    core.debug(`Check login result: ${result}`);
     return true;
   } catch (e) {
-    core.debug('Check login failed');
-    core.debug(checkLoginOutput);
+    core.debug(`Check login failed: ${e}`);
     return false;
   }
 };
 
 // Adapted here to pass the surge token
 export const getDeploys = surgeToken => {
-  const surgeListOutput = executeCmd(`${surgeCli} list --token ${surgeToken}`);
+  const surgeListOutput = executeSurgeCliCmd(`list --token ${surgeToken}`);
   const lines =
     surgeListOutput
       .split("\n")
