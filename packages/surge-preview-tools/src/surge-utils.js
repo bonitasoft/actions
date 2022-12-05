@@ -16,11 +16,13 @@ export const getSurgeCliVersion = () => {
 }
 
 export const checkLogin = surgeToken => {
+  let checkLoginOutput;
   try {
-    executeCmd(`${surgeCli} list --token ${surgeToken}`);
+    checkLoginOutput = executeCmd(`${surgeCli} list --token ${surgeToken}`);
     return true;
   } catch (e) {
-    core.debug(`Check login failed: ${e}`);
+    core.debug('Check login failed');
+    core.debug(checkLoginOutput);
     return false;
   }
 };
