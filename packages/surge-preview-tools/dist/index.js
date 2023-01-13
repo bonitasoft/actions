@@ -9777,7 +9777,7 @@ const getDeploys = surgeToken => {
 
 ;// CONCATENATED MODULE: ./src/utils.mjs
 /**
- *
+ * Compute the 'surge subdomain', as built by the surge-preview action
  * @param {{owner: string, repo: string}} repo
  * @param {string} jobId
  * @param {string} prNumber
