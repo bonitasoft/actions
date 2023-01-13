@@ -32,10 +32,16 @@ describe('computeSurgeSubDomain', () => {
       repo: 'repo_name'
     }, 'job', '1478')).toEqual('orga-repo_name-job-pr-1478');
   });
+  test('ensure lower case domain', () => {
+    expect(computeSurgeSubDomain({owner: 'myOrga', repo: 'myRepo'}, 'jobNbr', '157')).toEqual('myorga-myrepo-jobnbr-pr-157');
+  });
 });
 
 describe('computeSurgeDomain', () => {
   test('basic', () => {
     expect(computeSurgeDomain({owner: 'orga', repo: 'repo'}, 'job2', '666')).toEqual('orga-repo-job2-pr-666.surge.sh');
+  });
+  test('ensure lower case domain', () => {
+    expect(computeSurgeDomain({owner: 'myOrga', repo: 'myRepo'}, 'jobNbr', '157')).toEqual('myorga-myrepo-jobnbr-pr-157.surge.sh');
   });
 });
