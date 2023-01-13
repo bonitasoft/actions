@@ -1,16 +1,15 @@
 import * as core from '@actions/core';
 import * as github from "@actions/github";
 import {checkLogin, getDeploys, getSurgeCliVersion} from "./surge-utils"
+import {computeSurgeDomain} from "./utils.mjs";
 
 try {
   const surgeCliVersion = getSurgeCliVersion();
   core.info(`Surge cli version: ${surgeCliVersion}`);
 
   const payload = github.context.payload;
+  const domain = computeSurgeDomain(github.context.repo, github.context.job, payload.number);
   // Compute the 'preview url', as built by the surge-preview action
-  const repoOwner = github.context.repo.owner.replace(/\./g, '-');
-  const repoName = github.context.repo.repo.replace(/\./g, '-');
-  const domain = `${repoOwner}-${repoName}-${github.context.job}-pr-${payload.number}.surge.sh`;
   const previewUrl = `https://${domain}`;
   core.setOutput('preview-url', previewUrl);
   core.info(`Computed preview url: ${previewUrl}`);

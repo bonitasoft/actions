@@ -7,6 +7,7 @@ on:
     paths:
       - '.github/workflows/demo-surge-preview.yml'
       - 'packages/surge-preview-tools/**/*'
+      - '!packages/surge-preview-tools/**/*.md'
 
 permissions:
   pull-requests: write
