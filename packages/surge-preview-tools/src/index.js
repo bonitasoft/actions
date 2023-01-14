@@ -9,7 +9,6 @@ try {
 
   const payload = github.context.payload;
   const domain = computeSurgeDomain(github.context.repo, github.context.job, payload.number);
-  // Compute the 'preview url', as built by the surge-preview action
   const previewUrl = `https://${domain}`;
   core.setOutput('preview-url', previewUrl);
   core.info(`Computed preview url: ${previewUrl}`);
