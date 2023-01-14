@@ -4,7 +4,7 @@
   "private": true,
   "license": "Apache-2.0",
   "scripts": {
-    "prepare": "ncc build src/index.js -o dist --source-map --license licenses.txt",
+    "prepare": "ncc build src/index.js",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "all": "npm run prepare && npm run test"
   },

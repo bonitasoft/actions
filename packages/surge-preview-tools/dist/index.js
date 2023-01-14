@@ -1,4 +1,4 @@
-require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
+/******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
 /***/ 7351:
@@ -9811,7 +9811,6 @@ try {
 
   const payload = github.context.payload;
   const domain = computeSurgeDomain(github.context.repo, github.context.job, payload.number);
-  // Compute the 'preview url', as built by the surge-preview action
   const previewUrl = `https://${domain}`;
   core.setOutput('preview-url', previewUrl);
   core.info(`Computed preview url: ${previewUrl}`);
@@ -9856,4 +9855,3 @@ try {
 module.exports = __webpack_exports__;
 /******/ })()
 ;
-//# sourceMappingURL=index.js.map
