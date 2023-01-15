@@ -11,7 +11,7 @@ inputs:
       This input controls where the error messages and the fix suggestions are produced.
       If 'true', create a Pull Request comment.
       If 'false', add the messages in the GitHub Actions logs.
-      If 'auto', acts like 'false' for Pull Request created from forked repositories. Otherwise, acts like 'true'
+      If 'auto', acts like 'false' for Pull Request created from forked repositories (when the workflow running the action is triggered on the `pull_request` event). Otherwise, acts like 'true'.
     required: true
     default: 'auto'
 
