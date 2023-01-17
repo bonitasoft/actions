@@ -1,0 +1,28 @@
+name: Build surge-preview-tools
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - '.github/workflows/build-surge-preview-tools.yml'
+      - 'packages/surge-preview-tools/**/*'
+      - '!packages/surge-preview-tools/**/*.md'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - '.github/workflows/build-surge-preview-tools.yml'
+      - 'packages/surge-preview-tools/**/*'
+      - '!packages/surge-preview-tools/**/*.md'
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version-file: 'packages/surge-preview-tools/.nvmrc'
+      - name: Install and Test
+        run: npm ci && npm run all
+        working-directory: packages/surge-preview-tools
