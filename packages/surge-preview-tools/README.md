@@ -69,12 +69,22 @@ jobs:
 
 **Node version**: see the [.nvmrc](.nvmrc) file
 
-`npm run build`
+`npm run all`
 
-When committing, do not forget to add the `dist` folder.
+When committing, do not forget to also commit the `dist` folder.
+
+
+### Running tests
+
+If you want to run test in your IDE without calling the npm test script (to run a specific test for instance), add the
+`--experimental-vm-modules` option to the node command running Jest.
+
+For more details, see https://jestjs.io/docs/ecmascript-modules.
+
 
 
 ## Resources
 
 - https://github.com/afc163/surge-preview
 - https://github.com/adrianjost/actions-surge.sh-teardown: for surge cli output parsing
+- https://github.com/actions/javascript-action
