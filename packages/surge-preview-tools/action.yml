@@ -1,5 +1,7 @@
 name: Surge Preview Tools
-description: TODO
+description: |
+  Companion of the surge-preview action.
+  It helps to detect if the `surge-preview` action can/should be executed (see outputs).
 
 inputs:
   surge-token:
