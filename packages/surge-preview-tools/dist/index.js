@@ -9775,7 +9775,32 @@ const getDeploys = surgeToken => {
 };
 
 
+;// CONCATENATED MODULE: ./src/utils.mjs
+/**
+ * Compute the 'surge subdomain', as built by the surge-preview action
+ * @param {{owner: string, repo: string}} repo
+ * @param {string} jobId
+ * @param {string} prNumber
+ * @returns {string}
+ */
+const computeSurgeSubDomain = (repo, jobId, prNumber) => {
+  const repoOwner = repo.owner.replace(/\./g, '-');
+  const repoName = repo.repo.replace(/\./g, '-');
+  return `${repoOwner}-${repoName}-${jobId}-pr-${prNumber}`;
+}
+
+/**
+ * Compute the 'surge domain', as built by the surge-preview action
+ * @param {{owner: string, repo: string}} repo
+ * @param {string} jobId
+ * @param {string} prNumber
+ */
+const computeSurgeDomain = (repo, jobId, prNumber) => {
+  return `${computeSurgeSubDomain(repo, jobId, prNumber)}.surge.sh`;
+}
+
 ;// CONCATENATED MODULE: ./src/index.js
+
 
 
 
@@ -9785,10 +9810,7 @@ try {
   core.info(`Surge cli version: ${surgeCliVersion}`);
 
   const payload = github.context.payload;
-  // Compute the 'preview url', as built by the surge-preview action
-  const repoOwner = github.context.repo.owner.replace(/\./g, '-');
-  const repoName = github.context.repo.repo.replace(/\./g, '-');
-  const domain = `${repoOwner}-${repoName}-${github.context.job}-pr-${payload.number}.surge.sh`;
+  const domain = computeSurgeDomain(github.context.repo, github.context.job, payload.number);
   const previewUrl = `https://${domain}`;
   core.setOutput('preview-url', previewUrl);
   core.info(`Computed preview url: ${previewUrl}`);
