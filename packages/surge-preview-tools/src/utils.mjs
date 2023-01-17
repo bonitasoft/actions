@@ -5,7 +5,9 @@ export const checkIfDomainExist = async (url) => {
   core.info(`Fetching ${url}`);
   let domainExist = false;
   try {
-    const response = await got.head(url);
+    const response = await got.head(url, {
+      throwHttpErrors: false
+    });
     core.info(`Response status: ${response.statusCode}`);
     domainExist = response.ok;
   } catch (e) {
