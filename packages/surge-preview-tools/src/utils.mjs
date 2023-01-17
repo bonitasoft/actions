@@ -1,15 +1,13 @@
 import * as core from "@actions/core";
+import got from 'got';
 
 export const checkIfDomainExist = async (url) => {
   core.info(`Fetching ${url}`);
   let domainExist = false;
   try {
-    const response = await fetch(url, {
-      method: "HEAD",
-    });
-
-    core.info(`Response status: ${response.status}`);
-    domainExist = response.status === 200;
+    const response = await got.head(url);
+    core.info(`Response status: ${response.statusCode}`);
+    domainExist = response.ok;
   } catch (e) {
     core.error(`Error while fetching: ${e}`);
   }

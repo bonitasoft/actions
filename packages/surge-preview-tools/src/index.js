@@ -14,7 +14,7 @@ try {
   core.info(`Computed preview url: ${previewUrl}`);
 
   // Checking if the domain is publicly available
-  const isDomainExist = checkIfDomainExist(previewUrl);
+  const isDomainExist = await checkIfDomainExist(previewUrl);
   core.info(`Domain exist (publicly available)? ${isDomainExist}`);
   core.setOutput('domain-exist', isDomainExist);
 
