@@ -1,3 +1,21 @@
+import * as core from "@actions/core";
+import got from 'got';
+
+export const checkIfDomainExist = async (url) => {
+  core.info(`Fetching ${url}`);
+  let domainExist = false;
+  try {
+    const response = await got.head(url, {
+      throwHttpErrors: false
+    });
+    core.info(`Response status: ${response.statusCode}`);
+    domainExist = response.ok;
+  } catch (e) {
+    core.error(`Error while fetching: ${e}`);
+  }
+  return domainExist;
+}
+
 /**
  * Compute the 'surge subdomain', as built by the surge-preview action
  * @param {{owner: string, repo: string}} repo

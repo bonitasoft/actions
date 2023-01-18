@@ -13,8 +13,12 @@ outputs:
     description: 'true if the provided surge-token allows to run surge command'
   domain-exist:
     description: >
-      `true` if the domain related to the preview-url exists.
-      `false` otherwise, in particular the domain was created with another login.
+      `true` if the domain related to the `preview-url` is publicly available.
+      `false` otherwise.
+  domain-managed:
+    description: >
+      `true` if the domain related to the preview-url is managed (i.e. created) by the provided `surge-token`.
+      `false` otherwise, in particular the domain was created with another login/token.
   preview-url:
     description: 'The url for the related PR preview, as computed by the surge-preview action'
   surge-token-valid:
