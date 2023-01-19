@@ -26,7 +26,7 @@ export const checkIfDomainExist = async (url) => {
 export const computeSurgeSubDomain = (repo, jobId, prNumber) => {
   const repoOwner = repo.owner.replace(/\./g, '-');
   const repoName = repo.repo.replace(/\./g, '-');
-  return `${repoOwner}-${repoName}-${jobId}-pr-${prNumber}`;
+  return `${repoOwner}-${repoName}-${jobId}-pr-${prNumber}`.toLowerCase();
 }
 
 /**
