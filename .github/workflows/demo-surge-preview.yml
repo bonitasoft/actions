@@ -114,3 +114,29 @@ jobs:
           # The surge token is not set, so the surge-preview should not run.
           # If it runs, the build will fail to detect that the surge-preview-tools has an issue.
           build: invalid_command
+
+  demo_error_too_long_computed_surge_subdomain:  # the id is used by surge to generate the surge url, use a very long one to generate an error
+    runs-on: ubuntu-22.04
+    env:
+      SURGE_TOKEN: ${{ secrets.SURGE_TOKEN_DOC }}
+    steps:
+      # only required to access to the local github actions
+      - uses: actions/checkout@v3
+      - uses: ./packages/surge-preview-tools
+        id: surge-preview-tools
+        continue-on-error: true # we will verify the error in a later step
+        with:
+          surge-token: ${{ env.SURGE_TOKEN }}
+      - name: Detect error - too long computed surge subdomain
+        uses: actions/github-script@v6
+        env:
+          DETECTION_STATUS: ${{steps.surge-preview-tools.outcome}}
+        with:
+          script: |
+            const {DETECTION_STATUS} = process.env;
+            core.info(`Outcome of the 'surge-preview-tools' step is: ${DETECTION_STATUS}`);
+            if(DETECTION_STATUS === 'failure') {
+              core.info(`'surge-preview-tools' correctly detected that the computed surge subdomain is too long`);
+            } else {
+              core.setFailed(`'surge-preview-tools' should have detected that the computed surge subdomain is too long`)
+            }

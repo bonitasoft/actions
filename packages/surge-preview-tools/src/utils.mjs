@@ -26,7 +26,14 @@ export const checkIfDomainExist = async (url) => {
 export const computeSurgeSubDomain = (repo, jobId, prNumber) => {
   const repoOwner = repo.owner.replace(/\./g, '-');
   const repoName = repo.repo.replace(/\./g, '-');
-  return `${repoOwner}-${repoName}-${jobId}-pr-${prNumber}`.toLowerCase();
+  const domain = `${repoOwner}-${repoName}-${jobId}-pr-${prNumber}`.toLowerCase();
+  if(domain.length > 63) {
+    throw new Error(`The computed surge subdomain is too long. It contains ${domain.length} characters, but it must contain a maximum of 63 characters.  
+Computed sub-domain: ${domain}
+In your workflow definition, try to use a shorter id for the job that runs this action.
+For more details, see https://github.com/bonitasoft/actions/issues/101`)
+  }
+  return domain;
 }
 
 /**
