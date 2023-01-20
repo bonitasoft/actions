@@ -3,7 +3,7 @@
 This actions checks that the Pull Request title follows guidelines of [Conventional Commits v1.0.0](https://www.conventionalcommits.org/en/v1.0.0/).
 
 It also has the ability to post a comment in the Pull Request conversation with examples, when the Pull Request title is
-not conform.
+not compliant.
 
 ![image](https://user-images.githubusercontent.com/12074633/108867820-91325700-75c3-11eb-8820-4b55abe01c35.png)
 
