@@ -32,10 +32,24 @@ describe('computeSurgeSubDomain', () => {
       repo: 'repo_name'
     }, 'job', '1478')).toEqual('orga-repo_name-job-pr-1478');
   });
+  test('ensure lower case domain', () => {
+    expect(computeSurgeSubDomain({owner: 'myOrga', repo: 'myRepo'}, 'jobNbr', '157')).toEqual('myorga-myrepo-jobnbr-pr-157');
+  });
+  test('fail if the domain is invalid', () => {
+    expect(() => computeSurgeSubDomain({
+      owner: 'long-organization-name',
+      repo: 'long_repository_name'
+    }, 'very_very_long_job_id', '147875'))
+      // only test the beginning of the error
+      .toThrow('The computed surge subdomain is too long. It contains 75 characters, but it must contain a maximum of 63 characters.');
+  });
 });
 
 describe('computeSurgeDomain', () => {
   test('basic', () => {
     expect(computeSurgeDomain({owner: 'orga', repo: 'repo'}, 'job2', '666')).toEqual('orga-repo-job2-pr-666.surge.sh');
+  });
+  test('ensure lower case domain', () => {
+    expect(computeSurgeDomain({owner: 'myOrga', repo: 'myRepo'}, 'jobNbr', '157')).toEqual('myorga-myrepo-jobnbr-pr-157.surge.sh');
   });
 });
