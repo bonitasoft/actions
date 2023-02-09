@@ -2,17 +2,33 @@
 
 Centralized repository providing GitHub Actions developed by Bonitasoft and used in our CI/CD pipelines.
 
-## Usage
 
-To use an action from this repository:
+## List of actions
 
+- [list-branches](packages/list-branches): list and return branches in JSON filtered by input regex.
+- [notify-slack](packages/notify-slack): send a Slack message.
+- [pr-diff-checker](packages/pr-diff-checker): check the diff in a PR, and fail if one or more of the set criteria isn't met.
+- [pr-title-conventional-commits](packages/pr-title-conventional-commits): check that the Pull Request title follows guidelines of [Conventional Commits v1.0.0](https://www.conventionalcommits.org/en/v1.0.0/).
+- [surge-preview-tools](packages/surge-preview-tools): companion of the [surge-preview action](https://github.com/afc163/surge-preview).
+
+Do you think something is missing? See the [packages' folder](packages).
+
+
+## How-to use
+
+Each action describes how to use it by documenting its inputs and outputs.
+
+Here is a general rule:
+- Use the hash of a commit or a tag to declare the version of the action you want to use.
+- Do not use the `main` branch, which can be unstable.
+
+For example, here is how to use the [notify-slack](packages/notify-slack) with a specific version (replace `TAGNAME` by the actual tag value):
 ```yaml
  steps:
    - name: Send message to Slack channel
      uses: bonitasoft/actions/packages/notify-slack@TAGNAME
+     # the rest of the configuration goes here
 ```
-
-See the [actions list](packages) for more details
 
 ## Available tags
 
@@ -23,6 +39,7 @@ For example
 - then when releasing version `1.1.2`, a new `v1.1.2` tag is created. The `v1.1` and `v1` tags are updated to reference the tag of the newly released version.
 
 The list of tags is available in the [repository at GitHub](https://github.com/bonitasoft/actions/tags). 
+
 
 ## Release process
 

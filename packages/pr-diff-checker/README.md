@@ -1,4 +1,4 @@
-# Github PR diff checker
+# GitHub PR diff checker
 
 This action checks the diff in a PR, and fails if one or more of the set criteria isn't met.
 
