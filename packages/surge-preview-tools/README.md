@@ -2,9 +2,9 @@
 
 Companion of the [surge-preview action](https://github.com/afc163/surge-preview).
 
-It helps to detect if the `surge-preview` action can/should be run:
+It helps detecting if the `surge-preview` action can/should be run:
 - validate the provided surge token i.e. is related to a valid login 
-- detect if the deployment already exists. Avoid teardown error when the deployment doesn't exist or has not been created by the provided surge account
+- detect if the deployment already exists. Avoid teardown error when the deployment does not exist or has not been created by the provided surge account
 
 The action provides outputs that let manage such use cases.
 
