@@ -1,6 +1,6 @@
-# `list-branches` - **Github Action**
+# `list-branches` - **GitHub Action**
 
-This action will list and return branches in JSON filtered by input regex
+This action will list and return branches in JSON filtered by input regex.
 
 ## Input
 

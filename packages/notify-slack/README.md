@@ -1,6 +1,6 @@
 # `notify-slack` - **GitHub Action**
 
-This action will send a Slack message
+This action will send a Slack message.
 
 ## Input
 
