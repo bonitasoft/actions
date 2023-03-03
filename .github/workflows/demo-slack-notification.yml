@@ -6,7 +6,7 @@ on:
       channel-id:
         description: 'The id of the channel to notify'
         required: true
-        default: CFD1SMX7V # rd-test-bots
+        default: C04S03S51UN # rd-test-bots
 
 jobs:
   notify-slack:
