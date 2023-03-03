@@ -6,7 +6,7 @@ on:
       channel-id:
         description: 'The id of the channel to notify'
         required: true
-        default: CFD1SMX7V-adapt
+        default: C02J5M4JMK7 # slack-integration-test
 
 jobs:
   notify-slack:
