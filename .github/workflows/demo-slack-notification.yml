@@ -18,13 +18,10 @@ jobs:
         with:
           CHANNEL_ID: ${{ inputs.channel-id }}
           MESSAGE: |
-            :heavy_check_mark: This is a test from the `${{github.repository}}` repository.
-
-            The workflow was triggered manually by `${{github.triggering_actor}}` as `${{github.actor}}`
-            ## The following is taken from the doc-site message
             :fire:  Propagating documentation upwards failed for repository *${{matrix.repo}}*. \n \n  
             @channel *We need someone* ! \n  
             - Add a :fire_extinguisher:if you take the action to resolve the conflicts (only one person is required) \n 
             - Add a :sweat_drops: when it’s done (and eventually a :party_parrot: ) \n \n
             More details on solving the conflicts locally <https://bonitasoft.atlassian.net/wiki/spaces/BS/pages/1181483014/Bonita+documentation+site+content+update#Bonita| there>
+        env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
