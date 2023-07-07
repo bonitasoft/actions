@@ -1,0 +1,22 @@
+name: 'PR files contribution guideline checker'
+description: 'Checks files updated on PR are following the contribution guideline for documentation.'
+inputs:
+  github-token:
+    description: 'Github token'
+    required: true
+  files-to-check:
+    description: 'Comma-separated list of file extension to check in the modified files. (ex: adoc, md, txt)`'
+    required: false
+    default: 'adoc'
+  attributes-to-check:
+    description: 'Comma-separated list of attributes to check in the modified files. (ex: :description:, :alias:), keep empty to skip this check.`'
+    default: ''
+    required: false
+  forbidden-pattern-to-check:
+    description: 'Comma-separated list of forbidden pattern to check in the modified files. (ex: http://documentation.mydomain,link:), keep empty to skip this check.'
+    default: ''
+    required: false
+
+runs:
+  using: 'node20'
+  main: 'dist/index.js'
