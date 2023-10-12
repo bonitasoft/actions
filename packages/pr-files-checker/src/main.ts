@@ -64,24 +64,29 @@ async function run(): Promise<void> {
     );
 
     const prNumber = github?.context?.payload?.pull_request?.number;
-    core.info(`filterResultOnError ${filterResultOnError.length}`);
     if (filterResultOnError.length >= 1) {
       core.setFailed(
         `This PR didn't following all guideline, check the comments to see more details`
       );
+      if (prNumber) {
+        let commentBody: string = template + "# PR Guideline checker\n";
+        steps.forEach((step) => {
+          commentBody += step.formatCommentBody();
+        });
+        core.info(`Publish comment for PR #${prNumber}`);
+        await publishComment(octokit, template, commentBody, prNumber);
+      }
     } else {
-      const { id } = await isCommentExist({ octokit, template, prNumber });
-      core.info(`Publish comment for PR ${prNumber}`);
-      await deleteComment({ octokit, commentIdToDelete: id });
-    }
-
-    if (prNumber) {
-      let commentBody: string = template + "# PR Guideline checker\n";
-      steps.forEach((step) => {
-        commentBody += step.formatCommentBody();
+      const { exists, id } = await isCommentExist({
+        octokit,
+        template,
+        prNumber,
       });
-      core.info(`Publish comment for PR ${prNumber}`);
-      await publishComment(octokit, template, commentBody, prNumber);
+      core.info(`The Contribution follows the guideline.`);
+      if (exists && id) {
+        core.info(`Delete oldest comment for PR #${prNumber}`);
+        await deleteComment({ octokit, commentIdToDelete: id });
+      }
     }
   } catch (error) {
     //@ts-ignore

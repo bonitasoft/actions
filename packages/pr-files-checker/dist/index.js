@@ -225,22 +225,28 @@ function run() {
             core.setOutput("checker-result", actionResult);
             const filterResultOnError = actionResult.filter((result) => result.status === validation_1.Status.ERROR);
             const prNumber = (_c = (_b = (_a = github === null || github === void 0 ? void 0 : github.context) === null || _a === void 0 ? void 0 : _a.payload) === null || _b === void 0 ? void 0 : _b.pull_request) === null || _c === void 0 ? void 0 : _c.number;
-            core.info(`filterResultOnError ${filterResultOnError.length}`);
             if (filterResultOnError.length >= 1) {
                 core.setFailed(`This PR didn't following all guideline, check the comments to see more details`);
+                if (prNumber) {
+                    let commentBody = template + "# PR Guideline checker\n";
+                    steps.forEach((step) => {
+                        commentBody += step.formatCommentBody();
+                    });
+                    core.info(`Publish comment for PR #${prNumber}`);
+                    yield (0, github_utils_1.publishComment)(octokit, template, commentBody, prNumber);
+                }
             }
             else {
-                const { id } = yield (0, github_utils_1.isCommentExist)({ octokit, template, prNumber });
-                core.info(`Publish comment for PR ${prNumber}`);
-                yield (0, github_utils_1.deleteComment)({ octokit, commentIdToDelete: id });
-            }
-            if (prNumber) {
-                let commentBody = template + "# PR Guideline checker\n";
-                steps.forEach((step) => {
-                    commentBody += step.formatCommentBody();
+                const { exists, id } = yield (0, github_utils_1.isCommentExist)({
+                    octokit,
+                    template,
+                    prNumber,
                 });
-                core.info(`Publish comment for PR ${prNumber}`);
-                yield (0, github_utils_1.publishComment)(octokit, template, commentBody, prNumber);
+                core.info(`The Contribution follows the guideline.`);
+                if (exists && id) {
+                    core.info(`Delete oldest comment for PR #${prNumber}`);
+                    yield (0, github_utils_1.deleteComment)({ octokit, commentIdToDelete: id });
+                }
             }
         }
         catch (error) {
