@@ -12,16 +12,18 @@ name: Check PR content
 on: [pull_request]
 
 jobs:
-  check_pr:
-    runs-on: ubuntu-latest
-    name: Check for forbidden string
+  check_contribution:
+    runs-on: ubuntu-22.04
+    permissions:
+      pull-requests: write
     steps:
-      - name: Scan forbidden string
-        uses: bonitasoft/actions/packages/pr-diff-checker@TAG_VERSION
+      - name: Check contribution guidelines
+        uses: bonitasoft/actions/packages/pr-files-checker@v1.0
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          diffDoesNotContain: '["http://documentation.mydomain","link:"]'
-          extensionsToCheck: '[".adoc"]'
+          attributes-to-check: ':description:'          
+          files-to-check: 'adoc'
+          forbidden-pattern-to-check: 'https://documentation.bonitasoft.com, link:'
 ```
 
 An example is also provided in .github/workflows/ in this repository.
@@ -35,10 +37,10 @@ As for all JavaScript actions, the `dist` folder must be committed.
 
 So when changing the JS code or when updating the production dependencies (that are bundled in the final distribution),
 please regenerate the content of the `dist` folder.
-* Run `npm ci && npm run package`
+* Run `npm ci && npm run package:all`
 * Commit the dist folder
 
 
 ## License
 
-This is a modification and inspiration from [JJ/github-pr-contains-action](https://github.com/JJ/github-pr-contains-action/) and is released under the MIT license.
+This is released under the MIT license.

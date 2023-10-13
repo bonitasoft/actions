@@ -6,11 +6,7 @@ import {
   ValidationStep,
 } from "../validation";
 import { getFileContent } from "../github-utils";
-
-interface CheckAttributeResult extends ValidationResult {
-  file: string;
-  missingAttribute: string;
-}
+import { GitHub } from "@actions/github/lib/utils";
 
 export class AttributesCheckingStep extends ValidationStep {
   name: string;
@@ -42,27 +38,28 @@ export class AttributesCheckingStep extends ValidationStep {
     this.attributesChecking = attributes;
   }
 
-  validate: (octokit: any) => Promise<ActionResult> = async (octokit: any) => {
-    const results: ValidationResult[] = [];
-    let onError = false;
-    for (const file of this.files) {
-      const content = await getFileContent(octokit, file);
-      const result = this.checkPatternExistContent(
-        this.attributesChecking,
-        content
-      );
-      if (result) {
-        onError = true;
-        results.push({ file: file, details: result.missingAttribute });
+  validate: (octokit: InstanceType<typeof GitHub>) => Promise<ActionResult> =
+    async (octokit: InstanceType<typeof GitHub>) => {
+      const results: ValidationResult[] = [];
+      let onError = false;
+      for (const file of this.files) {
+        const content = await getFileContent(octokit, file);
+        const result = this.checkPatternExistContent(
+          this.attributesChecking,
+          content
+        );
+        if (result) {
+          onError = true;
+          results.push({ file: file, details: result.missingAttribute });
+        }
       }
-    }
-    this.stepResult = {
-      status: onError ? Status.ERROR : Status.SUCCESS,
-      results: results,
+      this.stepResult = {
+        status: onError ? Status.ERROR : Status.SUCCESS,
+        results: results,
+      };
+      core.debug(`${this.name} end on ${this.stepResult?.status}`);
+      return this.stepResult;
     };
-    core.debug(`${this.name} end on ${this.stepResult?.status}`);
-    return this.stepResult;
-  };
 
   formatCommentBody = () => {
     if (!this.stepResult || this.stepResult.status === Status.SUCCESS) {

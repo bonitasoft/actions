@@ -6,6 +6,7 @@ import {
 } from "../validation";
 import { getFileContent } from "../github-utils";
 import * as core from "@actions/core";
+import { GitHub } from "@actions/github/lib/utils";
 
 export class ForbiddenPatternStep extends ValidationStep {
   name: string;
@@ -34,7 +35,7 @@ export class ForbiddenPatternStep extends ValidationStep {
   setAttributes(attributes: string[]) {
     this.patternChecking = attributes;
   }
-  validate = async (octokit: any) => {
+  validate = async (octokit: InstanceType<typeof GitHub>) => {
     const results: ValidationResult[] = [];
     let onError = false;
     for (const file of this.files) {

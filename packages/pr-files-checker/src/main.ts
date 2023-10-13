@@ -9,12 +9,14 @@ import {
 } from "./github-utils";
 import { AttributesCheckingStep } from "./steps/AttributesCheckingStep";
 import { ForbiddenPatternStep } from "./steps/ForbiddenPatternStep";
+import { GitHub } from "@actions/github/lib/utils";
 
 const template = "<!-- previewCommentContributionChecker -->\n";
+
 async function run(): Promise<void> {
   try {
     const token = core.getInput("github-token");
-    const octokit = github.getOctokit(token);
+    const octokit: InstanceType<typeof GitHub> = github.getOctokit(token);
     let actionResult: ActionResult[] = [];
     const modifiedFiles: string[] = await getModifiedFiles(octokit);
 

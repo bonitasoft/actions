@@ -1,9 +1,10 @@
 import * as github from "@actions/github";
 import * as core from "@actions/core";
+import { GitHub } from "@actions/github/lib/utils";
 
 // Publish a comment on the PR with the results
 export async function publishComment(
-  octokit: any,
+  octokit: InstanceType<typeof GitHub>,
   template: string,
   commentBody: string,
   prNumber: number
@@ -34,7 +35,13 @@ export async function getFileContent(
   return Buffer.from(data.content, "base64").toString();
 }
 
-export async function getModifiedFiles(octokit: any): Promise<string[]> {
+export async function getModifiedFiles(
+  octokit: InstanceType<typeof GitHub>
+): Promise<string[]> {
+  if (github?.context?.payload?.pull_request?.number === undefined) {
+    core.setFailed("This action can only be used on pull_request");
+    return [];
+  }
   const { data } = await octokit.rest.pulls.listFiles({
     owner: github.context.repo.owner,
     repo: github.context.repo.repo,
