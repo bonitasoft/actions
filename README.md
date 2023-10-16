@@ -7,7 +7,8 @@ Centralized repository providing GitHub Actions developed by Bonitasoft and used
 
 - [list-branches](packages/list-branches): list and return branches in JSON filtered by input regex.
 - [notify-slack](packages/notify-slack): send a Slack message.
-- [pr-diff-checker](packages/pr-diff-checker): check the diff in a PR, and fail if one or more of the set criteria isn't met.
+- [pr-diff-checker](packages/pr-diff-checker): check the diff in a PR, and fail if one or more of the set criteria isn't met (deprecated, use `pr-files-checker` instead).
+- [pr-files-checker](packages/pr-files-checker): check the diff in a PR, and fail if one or more of the set criteria isn't met.
 - [pr-title-conventional-commits](packages/pr-title-conventional-commits): check that the Pull Request title follows guidelines of [Conventional Commits v1.0.0](https://www.conventionalcommits.org/en/v1.0.0/).
 - [surge-preview-tools](packages/surge-preview-tools): companion of the [surge-preview action](https://github.com/afc163/surge-preview).
 
