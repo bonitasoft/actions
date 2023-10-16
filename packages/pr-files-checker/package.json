@@ -1,6 +1,6 @@
 {
-  "name": "gh-pr-files-checker",
-  "version": "0.0.0",
+  "name": "pr-files-checker",
+  "version": "0.0.1",
   "private": true,
   "description": "Action that checks if the updated files follow the recommendation from the Bonita documentation team",
   "main": "lib/src/main.js",
@@ -10,8 +10,7 @@
     "format-check": "prettier --check '**/*.ts'",
     "lint": "eslint src/**/*.ts",
     "package": "ncc build --source-map --license licenses.txt",
-    "package:all": "npm run format && npm run build && npm run package",
-    "test": "jest"
+    "package:all": "npm run format && npm run build && npm run package"
   },
   "repository": {
     "type": "git",
