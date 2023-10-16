@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-22.04
     name: Check for forbidden string
     steps:
-      - uses: actions/checkout@v3 # access to the local action
+      - uses: actions/checkout@v4 # access to the local action
       - name: Scan forbidden string
         uses: ./packages/pr-diff-checker # local action
         with:

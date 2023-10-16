@@ -10,6 +10,6 @@ jobs:
     permissions:
       pull-requests: write # post comments when the PR title doesn't match the "Conventional Commits" rules
     steps:
-      - uses: actions/checkout@v3 # access to the local action
+      - uses: actions/checkout@v4 # access to the local action
       - name: Check pull request title
         uses: ./packages/pr-title-conventional-commits # local action
