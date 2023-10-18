@@ -1,5 +1,5 @@
 {
-  "name": "pr-files-checker",
+  "name": "pr-antora-content-guidelines-checker",
   "version": "0.0.1",
   "private": true,
   "description": "Action that checks if the updated files follow the recommendation from the Bonita documentation team",
@@ -18,6 +18,9 @@
   },
   "keywords": [
     "github",
+    "actions",
+    "antora",
+    "contribution",
     "pr-checker"
   ],
   "author": "",
@@ -25,7 +28,7 @@
   "bugs": {
     "url": "https://github.com/bonitasoft/actions/issues"
   },
-  "homepage": "https://github.com/bonitasoft/actions/tree/main/packages/pr-files-checker#readme",
+  "homepage": "https://github.com/bonitasoft/actions/tree/main/packages/pr-antora-content-guidelines-checker#readme",
   "dependencies": {
     "@actions/core": "^1.10.0"
   },

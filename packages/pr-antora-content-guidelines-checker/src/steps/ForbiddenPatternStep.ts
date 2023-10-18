@@ -8,6 +8,9 @@ import { getFileContent } from "../github-utils";
 import * as core from "@actions/core";
 import { GitHub } from "@actions/github/lib/utils";
 
+/**
+ * Step to validate if files contains some forbidden pattern (files path must contains modules/)
+ */
 export class ForbiddenPatternStep extends ValidationStep {
   name: string;
   description: string;

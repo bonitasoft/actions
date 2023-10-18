@@ -8,6 +8,9 @@ import {
 import { getFileContent } from "../github-utils";
 import { GitHub } from "@actions/github/lib/utils";
 
+/**
+ * Step to validate if attributes are exist in the files (must be content in modules/ or /pages/ folder)
+ */
 export class AttributesCheckingStep extends ValidationStep {
   name: string;
   description: string;
@@ -25,7 +28,6 @@ export class AttributesCheckingStep extends ValidationStep {
     this.description = "Some attributes are missing in the following files:";
     this.stepResult = null;
     this.attributesChecking = attributesToCheck;
-
     this.files = files.filter(
       (filePath) =>
         this.isExtensionAllowed(filePath, extensionsToCheck) &&
