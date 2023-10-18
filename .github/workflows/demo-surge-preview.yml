@@ -19,7 +19,7 @@ jobs:
       SURGE_TOKEN: ${{ secrets.SURGE_TOKEN_DOC }}
     steps:
       # only required to access to the local github actions
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: ./packages/surge-preview-tools
         id: surge-preview-tools
         with:
@@ -57,7 +57,7 @@ jobs:
       SURGE_TOKEN: invalid_surge_token_for_surge
     steps:
       # only required to access to the local github actions
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: ./packages/surge-preview-tools
         id: surge-preview-tools
         with:
@@ -89,7 +89,7 @@ jobs:
       SURGE_TOKEN: ''
     steps:
       # only required to access to the local github actions
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: ./packages/surge-preview-tools
         id: surge-preview-tools
         with:
@@ -121,7 +121,7 @@ jobs:
       SURGE_TOKEN: ${{ secrets.SURGE_TOKEN_DOC }}
     steps:
       # only required to access to the local github actions
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: ./packages/surge-preview-tools
         id: surge-preview-tools
         continue-on-error: true # we will verify the error in a later step

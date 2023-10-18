@@ -12,7 +12,7 @@ jobs:
   notify-slack:
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3 # only required to access to the local github actions
+      - uses: actions/checkout@v4 # only required to access to the local github actions
       - name: Send message to Slack channel
         uses: ./packages/notify-slack
         with:
