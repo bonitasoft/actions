@@ -1,4 +1,4 @@
-name: 'PR Antora content guidelines checker' pr-antora-content-guideline-checker
+name: 'PR Antora content guidelines checker'
 description: 'Checks files updated on PR are following the contribution guideline for an Antora documentation content.'
 inputs:
   github-token:
