@@ -4,7 +4,7 @@ inputs:
   github-token:
     description: 'The token used to create Pull Request comment when the contribution does not follow requirements'
     required: false
-    default: '${{ github.token }}'
+    default: ${{ github.token }}
   files-to-check:
     description: 'Comma-separated list of file extension to check in the modified files. (ex: adoc, md, txt)`'
     required: false
