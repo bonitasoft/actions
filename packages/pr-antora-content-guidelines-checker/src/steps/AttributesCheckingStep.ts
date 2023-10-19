@@ -9,7 +9,7 @@ import { getFileContent } from "../github-utils";
 import { GitHub } from "@actions/github/lib/utils";
 
 /**
- * Step to validate if attributes are exist in the files (must be content in modules/ or /pages/ folder)
+ * Step to validate if attributes are exist in the files (must be content in modules/ or /pages/ folders)
  */
 export class AttributesCheckingStep extends ValidationStep {
   name: string;

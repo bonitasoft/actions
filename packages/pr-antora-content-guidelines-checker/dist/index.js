@@ -1,7 +1,7 @@
 require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
-/***/ 6270:
+/***/ 3212:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -72,12 +72,16 @@ function getFileContent(octokit, filePath) {
 }
 exports.getFileContent = getFileContent;
 function getModifiedFiles(octokit) {
-    var _a, _b, _c;
+    var _a, _b, _c, _d, _e, _f;
     return __awaiter(this, void 0, void 0, function* () {
+        if (((_c = (_b = (_a = github === null || github === void 0 ? void 0 : github.context) === null || _a === void 0 ? void 0 : _a.payload) === null || _b === void 0 ? void 0 : _b.pull_request) === null || _c === void 0 ? void 0 : _c.number) === undefined) {
+            core.setFailed("This action can only be used on pull_request");
+            return [];
+        }
         const { data } = yield octokit.rest.pulls.listFiles({
             owner: github.context.repo.owner,
             repo: github.context.repo.repo,
-            pull_number: (_c = (_b = (_a = github === null || github === void 0 ? void 0 : github.context) === null || _a === void 0 ? void 0 : _a.payload) === null || _b === void 0 ? void 0 : _b.pull_request) === null || _c === void 0 ? void 0 : _c.number,
+            pull_number: (_f = (_e = (_d = github === null || github === void 0 ? void 0 : github.context) === null || _d === void 0 ? void 0 : _d.payload) === null || _e === void 0 ? void 0 : _e.pull_request) === null || _f === void 0 ? void 0 : _f.number,
         });
         return data.map((file) => file.filename);
     });
@@ -146,7 +150,7 @@ exports.deleteComment = deleteComment;
 
 /***/ }),
 
-/***/ 9536:
+/***/ 3109:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -186,10 +190,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(2186));
 const github = __importStar(__nccwpck_require__(5438));
-const validation_1 = __nccwpck_require__(5375);
-const github_utils_1 = __nccwpck_require__(6270);
-const AttributesCheckingStep_1 = __nccwpck_require__(1591);
-const ForbiddenPatternStep_1 = __nccwpck_require__(7637);
+const validation_1 = __nccwpck_require__(581);
+const github_utils_1 = __nccwpck_require__(3212);
+const AttributesCheckingStep_1 = __nccwpck_require__(8900);
+const ForbiddenPatternStep_1 = __nccwpck_require__(1661);
 const template = "<!-- previewCommentContributionChecker -->\n";
 function run() {
     var _a, _b, _c;
@@ -226,9 +230,11 @@ function run() {
             const filterResultOnError = actionResult.filter((result) => result.status === validation_1.Status.ERROR);
             const prNumber = (_c = (_b = (_a = github === null || github === void 0 ? void 0 : github.context) === null || _a === void 0 ? void 0 : _a.payload) === null || _b === void 0 ? void 0 : _b.pull_request) === null || _c === void 0 ? void 0 : _c.number;
             if (filterResultOnError.length >= 1) {
-                core.setFailed(`This PR didn't following all guideline, check the comments to see more details`);
+                core.setFailed(`This PR did not meet all the guidelines, see PR comments for details.`);
                 if (prNumber) {
-                    let commentBody = template + "# PR Guideline checker\n";
+                    let commentBody = template + "# Contribution Guidelines checks\n";
+                    commentBody += `The content of the files modified by this Pull Request doesn't match the Contribution Guidelines. \n
+                        Please update the following files.\n`;
                     steps.forEach((step) => {
                         commentBody += step.formatCommentBody();
                     });
@@ -260,7 +266,7 @@ run();
 
 /***/ }),
 
-/***/ 1591:
+/***/ 8900:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -300,8 +306,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AttributesCheckingStep = void 0;
 const core = __importStar(__nccwpck_require__(2186));
-const validation_1 = __nccwpck_require__(5375);
-const github_utils_1 = __nccwpck_require__(6270);
+const validation_1 = __nccwpck_require__(581);
+const github_utils_1 = __nccwpck_require__(3212);
+/**
+ * Step to validate if attributes are exist in the files (must be content in modules/ or /pages/ folders)
+ */
 class AttributesCheckingStep extends validation_1.ValidationStep {
     constructor(files, extensionsToCheck, attributesToCheck) {
         super();
@@ -361,7 +370,7 @@ exports.AttributesCheckingStep = AttributesCheckingStep;
 
 /***/ }),
 
-/***/ 7637:
+/***/ 1661:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -400,9 +409,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ForbiddenPatternStep = void 0;
-const validation_1 = __nccwpck_require__(5375);
-const github_utils_1 = __nccwpck_require__(6270);
+const validation_1 = __nccwpck_require__(581);
+const github_utils_1 = __nccwpck_require__(3212);
 const core = __importStar(__nccwpck_require__(2186));
+/**
+ * Step to validate if files contains some forbidden pattern (files path must contains modules/)
+ */
 class ForbiddenPatternStep extends validation_1.ValidationStep {
     constructor(files, extensionsToCheck, patternChecking) {
         super();
@@ -461,7 +473,7 @@ exports.ForbiddenPatternStep = ForbiddenPatternStep;
 
 /***/ }),
 
-/***/ 5375:
+/***/ 581:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -10269,7 +10281,7 @@ module.exports = JSON.parse('[[[0,44],"disallowed_STD3_valid"],[[45,46],"valid"]
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
 /******/ 	// This entry module is referenced by other modules so it can't be inlined
-/******/ 	var __webpack_exports__ = __nccwpck_require__(9536);
+/******/ 	var __webpack_exports__ = __nccwpck_require__(3109);
 /******/ 	module.exports = __webpack_exports__;
 /******/ 	
 /******/ })()
