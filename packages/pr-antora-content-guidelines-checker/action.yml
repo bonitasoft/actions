@@ -1,0 +1,23 @@
+name: 'PR Antora content guidelines checker'
+description: 'Checks files updated on PR are following the contribution guideline for an Antora documentation content.'
+inputs:
+  github-token:
+    description: 'The token used to create Pull Request comment when the contribution does not follow requirements'
+    required: false
+    default: ${{ github.token }}
+  files-to-check:
+    description: 'Comma-separated list of file extension to check in the modified files. (ex: adoc, md, txt)`'
+    required: false
+    default: 'adoc'
+  attributes-to-check:
+    description: 'Comma-separated list of attributes to check in the modified files. (ex: :description:, :alias:), keep empty to skip this check.`'
+    default: ''
+    required: false
+  forbidden-pattern-to-check:
+    description: 'Comma-separated list of forbidden pattern to check in the modified files. (ex: http://documentation.mydomain,link:), keep empty to skip this check.'
+    default: ''
+    required: false
+
+runs:
+  using: 'node20'
+  main: 'dist/index.js'
