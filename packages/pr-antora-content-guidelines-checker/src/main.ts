@@ -68,10 +68,13 @@ async function run(): Promise<void> {
     const prNumber = github?.context?.payload?.pull_request?.number;
     if (filterResultOnError.length >= 1) {
       core.setFailed(
-        `This PR didn't following all guideline, check the comments to see more details`
+        `This PR did not meet all the guidelines, see PR comments for details.`
       );
       if (prNumber) {
-        let commentBody: string = template + "# PR Guideline checker\n";
+        let commentBody: string =
+          template + "# Contribution Guidelines checks\n";
+        commentBody += `The content of the files modified by this Pull Request doesn't match the Contribution Guidelines. \n
+                        Please update the following files.\n`;
         steps.forEach((step) => {
           commentBody += step.formatCommentBody();
         });
