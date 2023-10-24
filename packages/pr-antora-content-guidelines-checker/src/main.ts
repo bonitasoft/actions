@@ -47,47 +47,55 @@ async function run(): Promise<void> {
         )
       );
     }
-
-    core.info("Input parameters:");
+    core.startGroup("Input parameters:");
     core.info(`* files-to-check: ${filesToCheckInput.join(", ")}`);
     core.info(`* attributes-to-check: ${attributesToCheckInput}`);
     core.info(`* forbidden-pattern-to-check: ${forbiddenPatternToCheckInput}`);
+    core.endGroup();
 
     for (const step of steps) {
       core.debug(`------- ${step.name} -------`);
       let stepResult = await step.validate(octokit, modifiedFiles);
       actionResult.push(stepResult);
     }
-
     core.setOutput("checker-result", actionResult);
 
-    const filterResultOnError = actionResult.filter(
-      (result) => result.status === Status.ERROR
+    const errorsStep = steps.filter(
+      (step) => step.stepResult?.status === Status.ERROR
     );
-
     const prNumber = github?.context?.payload?.pull_request?.number;
-    if (filterResultOnError.length >= 1) {
-      core.setFailed(
-        `This PR did not meet all the guidelines, see PR comments for details.`
-      );
+    if (errorsStep.length >= 1) {
+      core.info(`❌ This following checks are failed: `);
+      errorsStep.forEach((result) => {
+        core.info(` * ${result.name}`);
+      });
+      let comment;
       if (prNumber) {
         let commentBody: string =
           template + "# Contribution Guidelines checks\n";
-        commentBody += `The content of the files modified by this Pull Request doesn't match the Contribution Guidelines. \n
-                        Please update the following files.\n`;
+        commentBody += `The content of the files modified by this Pull Request doesn't match the Contribution Guidelines. \n \n Please update the following files.\n`;
         steps.forEach((step) => {
           commentBody += step.formatCommentBody();
         });
-        core.info(`Publish comment for PR #${prNumber}`);
-        await publishComment(octokit, template, commentBody, prNumber);
+        comment = await publishComment(
+          octokit,
+          template,
+          commentBody,
+          prNumber
+        );
+        core.info(`📝 Publish comment for PR #${prNumber}`);
+        core.info(`💡 See ${comment.data.html_url} for more details`);
       }
+      core.setFailed(
+        `❌ This PR did not meet all the guidelines, see PR comments for details. (${comment.data.html_url})`
+      );
     } else {
       const { exists, id } = await isCommentExist({
         octokit,
         template,
         prNumber,
       });
-      core.info(`The Contribution follows the guideline.`);
+      core.info(`✅ The Contribution follows the guideline. Well done !`);
       if (exists && id) {
         core.info(`Delete oldest comment for PR #${prNumber}`);
         await deleteComment({ octokit, commentIdToDelete: id });
