@@ -13,10 +13,14 @@ export async function publishComment(
   if (commentBody) {
     if (exists && id) {
       core.debug(`Update comment ${id}`);
-      await updateComment({ octokit, comment_id: id, body: commentBody });
+      return await updateComment({
+        octokit,
+        comment_id: id,
+        body: commentBody,
+      });
     } else {
       core.debug(`Create comment for #${prNumber}`);
-      await createComment({ octokit, body: commentBody, prNumber });
+      return await createComment({ octokit, body: commentBody, prNumber });
     }
   }
 }
@@ -73,22 +77,20 @@ export async function isCommentExist({ octokit, template, prNumber }) {
   };
 }
 export async function createComment({ octokit, body, prNumber }) {
-  const comment = await octokit.rest.issues.createComment({
+  return await octokit.rest.issues.createComment({
     issue_number: prNumber,
     owner: github.context.repo.owner,
     repo: github.context.repo.repo,
     body: body,
   });
-  return comment?.id;
 }
 export async function updateComment({ octokit, body, comment_id }) {
-  const comment = await octokit.rest.issues.updateComment({
+  return await octokit.rest.issues.updateComment({
     comment_id: comment_id,
     owner: github.context.repo.owner,
     repo: github.context.repo.repo,
     body: body,
   });
-  return comment?.id;
 }
 
 export async function deleteComment({ octokit, commentIdToDelete }) {
