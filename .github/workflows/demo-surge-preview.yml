@@ -128,7 +128,7 @@ jobs:
         with:
           surge-token: ${{ env.SURGE_TOKEN }}
       - name: Detect error - too long computed surge subdomain
-        uses: actions/github-script@v6
+        uses: actions/github-script@v7
         env:
           DETECTION_STATUS: ${{steps.surge-preview-tools.outcome}}
         with:
