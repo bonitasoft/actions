@@ -6,7 +6,6 @@ Centralized repository providing GitHub Actions developed by Bonitasoft and used
 ## List of actions
 
 - [list-branches](packages/list-branches): list and return branches in JSON filtered by input regex.
-- [notify-slack](packages/notify-slack): send a Slack message.
 - [pr-antora-content-guidelines-checker](packages/pr-antora-content-guidelines-checker): to check contributions done to the AsciiDoc content of a repository used to produced documentation generated with Antora. Check the diff of a Pull Request, and fail if one or more of the set criteria isn't met.
 - [pr-diff-checker](packages/pr-diff-checker): check the diff in a PR, and fail if one or more of the set criteria isn't met (deprecated, use `pr-antora-content-guidelines-checke` instead).
 - [pr-title-conventional-commits](packages/pr-title-conventional-commits): check that the Pull Request title follows guidelines of [Conventional Commits v1.0.0](https://www.conventionalcommits.org/en/v1.0.0/).
@@ -23,11 +22,11 @@ Here is a general rule:
 - Use the hash of a commit or a tag to declare the version of the action you want to use.
 - Do not use the `main` branch, which can be unstable.
 
-For example, here is how to use the [notify-slack](packages/notify-slack) with a specific version (replace `TAGNAME` by the actual tag value):
+For example, here is how to use the [surge-preview-tools](packages/surge-preview-tools) with a specific version (replace `TAGNAME` by the actual tag value):
 ```yaml
  steps:
    - name: Send message to Slack channel
-     uses: bonitasoft/actions/packages/notify-slack@TAGNAME
+     uses: bonitasoft/actions/packages/surge-preview-tools@TAGNAME
      # the rest of the configuration goes here
 ```
 
