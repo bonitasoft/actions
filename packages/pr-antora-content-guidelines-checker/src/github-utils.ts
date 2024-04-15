@@ -33,8 +33,7 @@ export async function getFileContent(
     owner: github.context.repo.owner,
     repo: github.context.repo.repo,
     path: filePath,
-    // TODO validate that this better works with pull_request_target
-    // ref: github.context.sha,
+    // don't use "github.context.sha" because the value is different in pull_request and pull_request_target. The used value here works for both events
     ref: github?.context?.payload?.pull_request?.head?.sha,
   });
 
