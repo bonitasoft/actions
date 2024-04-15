@@ -70,8 +70,7 @@ function getFileContent(octokit, filePath) {
             owner: github.context.repo.owner,
             repo: github.context.repo.repo,
             path: filePath,
-            // TODO validate that this better works with pull_request_target
-            // ref: github.context.sha,
+            // don't use "github.context.sha" because the value is different in pull_request and pull_request_target. The used value here works for both events
             ref: (_d = (_c = (_b = (_a = github === null || github === void 0 ? void 0 : github.context) === null || _a === void 0 ? void 0 : _a.payload) === null || _b === void 0 ? void 0 : _b.pull_request) === null || _c === void 0 ? void 0 : _c.head) === null || _d === void 0 ? void 0 : _d.sha,
         });
         return Buffer.from(data.content, "base64").toString();
@@ -233,6 +232,7 @@ function run() {
             for (const step of steps) {
                 core.debug(`------- ${step.name} -------`);
                 let stepResult = yield step.validate(octokit, modifiedFiles);
+                core.debug(`Validation status: ${stepResult === null || stepResult === void 0 ? void 0 : stepResult.status}`);
                 actionResult.push(stepResult);
             }
             core.setOutput("checker-result", actionResult);
@@ -330,7 +330,6 @@ class AttributesCheckingStep extends validation_1.ValidationStep {
         super();
         this.attributesChecking = [];
         this.validate = (octokit) => __awaiter(this, void 0, void 0, function* () {
-            var _a;
             const results = [];
             let onError = false;
             for (const file of this.files) {
@@ -345,7 +344,6 @@ class AttributesCheckingStep extends validation_1.ValidationStep {
                 status: onError ? validation_1.Status.ERROR : validation_1.Status.SUCCESS,
                 results: results,
             };
-            core.debug(`${this.name} end on ${(_a = this.stepResult) === null || _a === void 0 ? void 0 : _a.status}`);
             return this.stepResult;
         });
         this.formatCommentBody = () => {
@@ -434,7 +432,6 @@ class ForbiddenPatternStep extends validation_1.ValidationStep {
         super();
         this.patternChecking = [];
         this.validate = (octokit) => __awaiter(this, void 0, void 0, function* () {
-            var _a;
             const results = [];
             let onError = false;
             for (const file of this.files) {
@@ -449,7 +446,6 @@ class ForbiddenPatternStep extends validation_1.ValidationStep {
                 status: onError ? validation_1.Status.ERROR : validation_1.Status.SUCCESS,
                 results: results,
             };
-            core.debug(`${this.name} end on ${(_a = this.stepResult) === null || _a === void 0 ? void 0 : _a.status}`);
             return this.stepResult;
         });
         this.formatCommentBody = () => {
