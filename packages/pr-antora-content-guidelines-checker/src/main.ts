@@ -65,7 +65,7 @@ async function run(): Promise<void> {
     );
     const prNumber = github?.context?.payload?.pull_request?.number;
     if (errorsStep.length >= 1) {
-      core.info(`❌ This following checks are failed: `);
+      core.info(`❌ The following checks failed: `);
       errorsStep.forEach((result) => {
         core.info(` * ${result.name}`);
       });

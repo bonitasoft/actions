@@ -46,7 +46,9 @@ export async function getModifiedFiles(
 ): Promise<string[]> {
   const prNumber = github?.context?.payload?.pull_request?.number;
   if (prNumber === undefined) {
-    core.setFailed("This action can only be used on pull_request or pull_request_target event");
+    core.setFailed(
+      "This action can only be used on pull_request or pull_request_target event"
+    );
     return [];
   }
   const { data } = await octokit.rest.pulls.listFiles({
