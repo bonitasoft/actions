@@ -64,30 +64,36 @@ function publishComment(octokit, template, commentBody, prNumber) {
 }
 exports.publishComment = publishComment;
 function getFileContent(octokit, filePath) {
+    var _a, _b, _c, _d;
     return __awaiter(this, void 0, void 0, function* () {
         const { data } = yield octokit.rest.repos.getContent({
             owner: github.context.repo.owner,
             repo: github.context.repo.repo,
             path: filePath,
-            ref: github.context.sha,
+            // TODO validate that this better works with pull_request_target
+            // ref: github.context.sha,
+            ref: (_d = (_c = (_b = (_a = github === null || github === void 0 ? void 0 : github.context) === null || _a === void 0 ? void 0 : _a.payload) === null || _b === void 0 ? void 0 : _b.pull_request) === null || _c === void 0 ? void 0 : _c.head) === null || _d === void 0 ? void 0 : _d.sha,
         });
         return Buffer.from(data.content, "base64").toString();
     });
 }
 exports.getFileContent = getFileContent;
 function getModifiedFiles(octokit) {
-    var _a, _b, _c, _d, _e, _f;
+    var _a, _b, _c;
     return __awaiter(this, void 0, void 0, function* () {
-        if (((_c = (_b = (_a = github === null || github === void 0 ? void 0 : github.context) === null || _a === void 0 ? void 0 : _a.payload) === null || _b === void 0 ? void 0 : _b.pull_request) === null || _c === void 0 ? void 0 : _c.number) === undefined) {
-            core.setFailed("This action can only be used on pull_request");
+        const prNumber = (_c = (_b = (_a = github === null || github === void 0 ? void 0 : github.context) === null || _a === void 0 ? void 0 : _a.payload) === null || _b === void 0 ? void 0 : _b.pull_request) === null || _c === void 0 ? void 0 : _c.number;
+        if (prNumber === undefined) {
+            core.setFailed("This action can only be used on pull_request or pull_request_target event");
             return [];
         }
         const { data } = yield octokit.rest.pulls.listFiles({
             owner: github.context.repo.owner,
             repo: github.context.repo.repo,
-            pull_number: (_f = (_e = (_d = github === null || github === void 0 ? void 0 : github.context) === null || _d === void 0 ? void 0 : _d.payload) === null || _e === void 0 ? void 0 : _e.pull_request) === null || _f === void 0 ? void 0 : _f.number,
+            pull_number: prNumber,
         });
-        return data.map((file) => file.filename);
+        const modifiedFiles = data.map((file) => file.filename);
+        core.debug(`Modified files in PR #${prNumber}: ${modifiedFiles}`);
+        return modifiedFiles;
     });
 }
 exports.getModifiedFiles = getModifiedFiles;
@@ -233,7 +239,7 @@ function run() {
             const errorsStep = steps.filter((step) => { var _a; return ((_a = step.stepResult) === null || _a === void 0 ? void 0 : _a.status) === validation_1.Status.ERROR; });
             const prNumber = (_c = (_b = (_a = github === null || github === void 0 ? void 0 : github.context) === null || _a === void 0 ? void 0 : _a.payload) === null || _b === void 0 ? void 0 : _b.pull_request) === null || _c === void 0 ? void 0 : _c.number;
             if (errorsStep.length >= 1) {
-                core.info(`❌ This following checks are failed: `);
+                core.info(`❌ The following checks failed: `);
                 errorsStep.forEach((result) => {
                     core.info(` * ${result.name}`);
                 });
