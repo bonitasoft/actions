@@ -56,6 +56,7 @@ async function run(): Promise<void> {
     for (const step of steps) {
       core.debug(`------- ${step.name} -------`);
       let stepResult = await step.validate(octokit, modifiedFiles);
+      core.debug(`Validation status: ${stepResult?.status}`);
       actionResult.push(stepResult);
     }
     core.setOutput("checker-result", actionResult);

@@ -59,7 +59,6 @@ export class AttributesCheckingStep extends ValidationStep {
         status: onError ? Status.ERROR : Status.SUCCESS,
         results: results,
       };
-      core.debug(`${this.name} end on ${this.stepResult?.status}`);
       return this.stepResult;
     };
 
