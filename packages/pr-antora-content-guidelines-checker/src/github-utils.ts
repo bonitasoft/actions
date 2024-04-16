@@ -33,7 +33,8 @@ export async function getFileContent(
     owner: github.context.repo.owner,
     repo: github.context.repo.repo,
     path: filePath,
-    ref: github.context.sha,
+    // don't use "github.context.sha" because the value is different in pull_request and pull_request_target. The used value here works for both events
+    ref: github?.context?.payload?.pull_request?.head?.sha,
   });
 
   return Buffer.from(data.content, "base64").toString();
@@ -42,17 +43,22 @@ export async function getFileContent(
 export async function getModifiedFiles(
   octokit: InstanceType<typeof GitHub>
 ): Promise<string[]> {
-  if (github?.context?.payload?.pull_request?.number === undefined) {
-    core.setFailed("This action can only be used on pull_request");
+  const prNumber = github?.context?.payload?.pull_request?.number;
+  if (prNumber === undefined) {
+    core.setFailed(
+      "This action can only be used on pull_request or pull_request_target event"
+    );
     return [];
   }
   const { data } = await octokit.rest.pulls.listFiles({
     owner: github.context.repo.owner,
     repo: github.context.repo.repo,
-    pull_number: github?.context?.payload?.pull_request?.number,
+    pull_number: prNumber,
   });
 
-  return data.map((file: any) => file.filename);
+  const modifiedFiles = data.map((file: any) => file.filename);
+  core.debug(`Modified files in PR #${prNumber}: ${modifiedFiles}`);
+  return modifiedFiles;
 }
 
 export async function isCommentExist({ octokit, template, prNumber }) {
