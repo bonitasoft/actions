@@ -36,6 +36,7 @@ async function getPrNumber(github_context){
       // from time to time, you may get rate limit errors given search API seems to use many calls internally.
       core.warning(`Unable to get the PR number with API search: ${e}`);
     }
+    core.info(`Find PR number: ${prNumber}`);
     return prNumber;
   }
 }
