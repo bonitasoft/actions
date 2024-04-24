@@ -17,8 +17,9 @@ async function getPrNumber(github_context){
   payload?.workflow_run?.head_sha;
 
   if (payload.number && payload.pull_request) {
-    core.debug('prNumber retrieved from pull_request');
-    prNumber = payload.number;
+    core.debug(`prNumber retrieved from pull_request ${payload.number}`);
+    core.info(`Find PR number: ${prNumber}`);
+    return payload.number;
   } else {
     core.debug('Not a pull_request, so doing a API search');
     // Inspired by https://github.com/orgs/community/discussions/25220#discussioncomment-8697399
@@ -30,14 +31,12 @@ async function getPrNumber(github_context){
       const result = await octokit.rest.search.issuesAndPullRequests(query);
       const pr = result.data.items.length > 0 && result.data.items[0];
       core.debug(`Found related pull_request: ${JSON.stringify(pr, null, 2)}`);
-      prNumber = pr ? pr.number : undefined;
+      return pr ? pr.number : undefined;
     } catch (e) {
       // As mentioned in https://github.com/orgs/community/discussions/25220#discussioncomment-8971083
       // from time to time, you may get rate limit errors given search API seems to use many calls internally.
       core.warning(`Unable to get the PR number with API search: ${e}`);
     }
-    core.info(`Find PR number: ${prNumber}`);
-    return prNumber;
   }
 }
 try {
@@ -46,7 +45,8 @@ try {
   
   const {job, payload} = github.context;
   const prNumber= await getPrNumber(github.context);
-  if(!prNumber){
+  core.info(`Find PR number: ${prNumber}`);
+  if(prNumber === undefined){
     core.setFailed('No PR number found');
   }
 
