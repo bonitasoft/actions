@@ -8,12 +8,16 @@ It helps detecting if the `surge-preview` action can/should be run:
 
 The action provides outputs that let manage such use cases.
 
-Limitations
-- for Pull Request only
+Work with workflow triggered by the following events:
+- `pull_request`
+- `workflow_run`
 
 ## Usage 
 
 See [action.yml](./action.yml) for inputs and outputs.
+
+
+### `pull_request` event
 
 In the following, the outputs of the `surge-preview-tools` action are used to decide if the `surge-preview` action can run.
 
@@ -56,7 +60,69 @@ jobs:
         uses: afc163/surge-preview@v1
         with:
           surge_token: ${{ secrets.SURGE_TOKEN }}
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          dist: site
+          failOnError: true
+          teardown: true
+          build: |
+            ls -lh site
+```
+
+### `workflow_run` event
+
+In the following, the outputs of the `surge-preview-tools` action are used to decide if the `surge-preview` action can run.
+
+**Note**:
+- the `surge-preview-tools` action supports `workflow_run` event as of version 3.2.0.
+- the `surge-preview` action supports `workflow_run` event as of [version 1.8.0](https://github.com/afc163/surge-preview/commit/4628aab4d29c2679cbce5aff7f45eac8ff219609).
+
+When running the `surge-preview-tools` action in a workflow triggered by `workflow_run` event, the following permissions must be granted to the `GITHUB_TOKEN`:
+- metadata: read
+- pull-requests: read
+
+
+```yaml
+name: Surge PR Preview - Deploy Stage
+
+on:
+  workflow_run:
+    workflows: ["Surge PR Preview - Build Stage"] # The name of the workflow that will trigger this workflow
+    types:
+      - completed
+
+jobs:
+  # MUST be unique across all surge preview deployments for a repository as the job id is used in the deployment URL
+  deploy:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.conclusion == 'success' }}
+
+    permissions:
+      # This permission is only required by surge-preview when it is configured to create Pull Request comment
+      pull-requests: write
+
+    steps:
+      - uses: bonitasoft/actions/packages/surge-preview-tools@TAGNAME
+        id: surge-preview-tools
+        with:
+          surge-token: ${{ secrets.SURGE_TOKEN }}
+      - name: Echo surge preview tools output
+        run: |
+          echo "can-run-surge-command: ${{ steps.surge-preview-tools.outputs.can-run-surge-command }}"
+          echo "domain-exist: ${{ steps.surge-preview-tools.outputs.domain-exist }}" 
+          echo "preview-url: ${{ steps.surge-preview-tools.outputs.preview-url }}" 
+          echo "surge-token-valid: ${{ steps.surge-preview-tools.outputs.surge-token-valid }}"
+
+      - name: Download the site previously built
+        uses: dawidd6/action-download-artifact@v3
+        with:
+          workflow: ${{ github.event.workflow_run.workflow_id }}
+          name: pr-build-dist  # must be kept in sync with the artifact name downloaded in the build stage
+          path: site/
+
+      - name: Publish Demo preview
+        if: steps.surge-preview-tools.outputs.can-run-surge-command == 'true'
+        uses: afc163/surge-preview@v1
+        with:
+          surge_token: ${{ secrets.SURGE_TOKEN }}
           dist: site
           failOnError: true
           teardown: true
