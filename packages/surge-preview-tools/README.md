@@ -81,21 +81,24 @@ When running the `surge-preview-tools` action in a workflow triggered by `workfl
 
 
 ```yaml
-name: Surge Preview for Pull Request
+name: Surge PR Preview - Deploy Stage
 
 on:
-  pull_request:
-    # To manage 'surge-preview' action teardown, add default event types + closed event type
-    types: [opened, synchronize, reopened, closed]
-    branches:
-      - master
+  workflow_run:
+    workflows: ["Surge PR Preview - Build Stage"] # The name of the workflow that will trigger this workflow
+    types:
+      - completed
 
 jobs:
-  publish_demo:
+  # MUST be unique across all surge preview deployments for a repository as the job id is used in the deployment URL
+  deploy:
     runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.conclusion == 'success' }}
+
     permissions:
       # This permission is only required by surge-preview when it is configured to create Pull Request comment
       pull-requests: write
+
     steps:
       - uses: bonitasoft/actions/packages/surge-preview-tools@TAGNAME
         id: surge-preview-tools
@@ -107,10 +110,14 @@ jobs:
           echo "domain-exist: ${{ steps.surge-preview-tools.outputs.domain-exist }}" 
           echo "preview-url: ${{ steps.surge-preview-tools.outputs.preview-url }}" 
           echo "surge-token-valid: ${{ steps.surge-preview-tools.outputs.surge-token-valid }}"
-      - name: Build fake demo
-        run: |
-          mkdir site
-          echo "This is a preview site built with a worflow triggered by a <code>workflow_run</code> event" > site/index.html
+
+      - name: Download the site previously built
+        uses: dawidd6/action-download-artifact@v3
+        with:
+          workflow: ${{ github.event.workflow_run.workflow_id }}
+          name: pr-build-dist  # must be kept in sync with the artifact name downloaded in the build stage
+          path: site/
+
       - name: Publish Demo preview
         if: steps.surge-preview-tools.outputs.can-run-surge-command == 'true'
         uses: afc163/surge-preview@v1
