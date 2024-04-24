@@ -3,43 +3,43 @@ import * as github from "@actions/github";
 import { checkLogin, getDeploys, getSurgeCliVersion } from "./surge-utils";
 import { checkIfDomainExist, computeSurgeDomain } from "./utils.mjs";
 
-/**
- * Retrieve the PR number
- * Inspired by https://github.com/afc163/surge-preview/blob/main/src/main.ts
- * @returns prNumber
- */
-async function getPrNumber(github_context){
-  const token = core.getInput('github-token', { required: true });
-  const octokit = github.getOctokit(token);
-  const {payload} = github_context;
-  const gitCommitSha =
-  payload?.pull_request?.head?.sha ||
-  payload?.workflow_run?.head_sha;
+try {
+  /**
+   * Retrieve the PR number
+   * Inspired by https://github.com/afc163/surge-preview/blob/main/src/main.ts
+   * @returns prNumber
+   */
+  const getPrNumber = async (github_context) => {
+    const token = core.getInput('github-token', { required: true });
+    const octokit = github.getOctokit(token);
+    const {payload} = github_context;
+    const gitCommitSha =
+    payload?.pull_request?.head?.sha ||
+    payload?.workflow_run?.head_sha;
 
-  if (payload.number && payload.pull_request) {
-    core.debug(`prNumber retrieved from pull_request ${payload.number}`);
-    core.info(`Find PR number: ${prNumber}`);
-    return payload.number;
-  } else {
-    core.debug('Not a pull_request, so doing a API search');
-    // Inspired by https://github.com/orgs/community/discussions/25220#discussioncomment-8697399
-    const query = {
-      q: `repo:${github_context.repo.owner}/${github_context.repo.repo} is:pr sha:${gitCommitSha}`,
-      per_page: 1,
-    };
-    try {
-      const result = await octokit.rest.search.issuesAndPullRequests(query);
-      const pr = result.data.items.length > 0 && result.data.items[0];
-      core.debug(`Found related pull_request: ${JSON.stringify(pr, null, 2)}`);
-      return pr ? pr.number : undefined;
-    } catch (e) {
-      // As mentioned in https://github.com/orgs/community/discussions/25220#discussioncomment-8971083
-      // from time to time, you may get rate limit errors given search API seems to use many calls internally.
-      core.warning(`Unable to get the PR number with API search: ${e}`);
+    if (payload.number && payload.pull_request) {
+      core.debug(`prNumber retrieved from pull_request ${payload.number}`);      
+      return payload.number;
+    } else {
+      core.debug('Not a pull_request, so doing a API search');
+      // Inspired by https://github.com/orgs/community/discussions/25220#discussioncomment-8697399
+      const query = {
+        q: `repo:${github_context.repo.owner}/${github_context.repo.repo} is:pr sha:${gitCommitSha}`,
+        per_page: 1,
+      };
+      try {
+        const result = await octokit.rest.search.issuesAndPullRequests(query);
+        const pr = result.data.items.length > 0 && result.data.items[0];
+        core.debug(`Found related pull_request: ${JSON.stringify(pr, null, 2)}`);
+        return pr ? pr.number : undefined;
+      } catch (e) {
+        // As mentioned in https://github.com/orgs/community/discussions/25220#discussioncomment-8971083
+        // from time to time, you may get rate limit errors given search API seems to use many calls internally.
+        core.warning(`Unable to get the PR number with API search: ${e}`);
+      }
     }
   }
-}
-try {
+
   const surgeCliVersion = getSurgeCliVersion();
   core.info(`Surge cli version: ${surgeCliVersion}`);
   

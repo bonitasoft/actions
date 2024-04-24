@@ -13459,43 +13459,43 @@ __nccwpck_require__.r(__webpack_exports__);
 
 
 
-/**
- * Retrieve the PR number
- * Inspired by https://github.com/afc163/surge-preview/blob/main/src/main.ts
- * @returns prNumber
- */
-async function getPrNumber(github_context){
-  const token = _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput('github-token', { required: true });
-  const octokit = _actions_github__WEBPACK_IMPORTED_MODULE_1__.getOctokit(token);
-  const {payload} = github_context;
-  const gitCommitSha =
-  payload?.pull_request?.head?.sha ||
-  payload?.workflow_run?.head_sha;
+try {
+  /**
+   * Retrieve the PR number
+   * Inspired by https://github.com/afc163/surge-preview/blob/main/src/main.ts
+   * @returns prNumber
+   */
+  const getPrNumber = async (github_context) => {
+    const token = _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput('github-token', { required: true });
+    const octokit = _actions_github__WEBPACK_IMPORTED_MODULE_1__.getOctokit(token);
+    const {payload} = github_context;
+    const gitCommitSha =
+    payload?.pull_request?.head?.sha ||
+    payload?.workflow_run?.head_sha;
 
-  if (payload.number && payload.pull_request) {
-    _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`prNumber retrieved from pull_request ${payload.number}`);
-    _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Find PR number: ${prNumber}`);
-    return payload.number;
-  } else {
-    _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug('Not a pull_request, so doing a API search');
-    // Inspired by https://github.com/orgs/community/discussions/25220#discussioncomment-8697399
-    const query = {
-      q: `repo:${github_context.repo.owner}/${github_context.repo.repo} is:pr sha:${gitCommitSha}`,
-      per_page: 1,
-    };
-    try {
-      const result = await octokit.rest.search.issuesAndPullRequests(query);
-      const pr = result.data.items.length > 0 && result.data.items[0];
-      _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`Found related pull_request: ${JSON.stringify(pr, null, 2)}`);
-      return pr ? pr.number : undefined;
-    } catch (e) {
-      // As mentioned in https://github.com/orgs/community/discussions/25220#discussioncomment-8971083
-      // from time to time, you may get rate limit errors given search API seems to use many calls internally.
-      _actions_core__WEBPACK_IMPORTED_MODULE_0__.warning(`Unable to get the PR number with API search: ${e}`);
+    if (payload.number && payload.pull_request) {
+      _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`prNumber retrieved from pull_request ${payload.number}`);      
+      return payload.number;
+    } else {
+      _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug('Not a pull_request, so doing a API search');
+      // Inspired by https://github.com/orgs/community/discussions/25220#discussioncomment-8697399
+      const query = {
+        q: `repo:${github_context.repo.owner}/${github_context.repo.repo} is:pr sha:${gitCommitSha}`,
+        per_page: 1,
+      };
+      try {
+        const result = await octokit.rest.search.issuesAndPullRequests(query);
+        const pr = result.data.items.length > 0 && result.data.items[0];
+        _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`Found related pull_request: ${JSON.stringify(pr, null, 2)}`);
+        return pr ? pr.number : undefined;
+      } catch (e) {
+        // As mentioned in https://github.com/orgs/community/discussions/25220#discussioncomment-8971083
+        // from time to time, you may get rate limit errors given search API seems to use many calls internally.
+        _actions_core__WEBPACK_IMPORTED_MODULE_0__.warning(`Unable to get the PR number with API search: ${e}`);
+      }
     }
   }
-}
-try {
+
   const surgeCliVersion = (0,_surge_utils__WEBPACK_IMPORTED_MODULE_2__/* .getSurgeCliVersion */ .re)();
   _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Surge cli version: ${surgeCliVersion}`);
   
