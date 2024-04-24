@@ -7,6 +7,10 @@ inputs:
   surge-token:
     description: 'surge.sh token'
     required: false
+  github-token:
+    description: 'Github token'
+    required: false
+    default: ${{ github.token }}
 
 outputs:
   can-run-surge-command:

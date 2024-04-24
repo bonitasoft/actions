@@ -4886,6 +4886,7 @@ const statusCodeCacheableByDefault = new Set([
     206,
     300,
     301,
+    308,
     404,
     405,
     410,
@@ -4958,10 +4959,10 @@ function parseCacheControl(header) {
 
     // TODO: When there is more than one value present for a given directive (e.g., two Expires header fields, multiple Cache-Control: max-age directives),
     // the directive's value is considered invalid. Caches are encouraged to consider responses that have invalid freshness information to be stale
-    const parts = header.trim().split(/\s*,\s*/); // TODO: lame parsing
+    const parts = header.trim().split(/,/);
     for (const part of parts) {
-        const [k, v] = part.split(/\s*=\s*/, 2);
-        cc[k] = v === undefined ? true : v.replace(/^"|"$/g, ''); // TODO: lame unquoting
+        const [k, v] = part.split(/=/, 2);
+        cc[k.trim()] = v === undefined ? true : v.trim().replace(/^"|"$/g, '');
     }
 
     return cc;
@@ -13458,12 +13459,53 @@ __nccwpck_require__.r(__webpack_exports__);
 
 
 
+/**
+ * Retrieve the PR number
+ * Inspired by https://github.com/afc163/surge-preview/blob/main/src/main.ts
+ * @returns prNumber
+ */
+async function getPrNumber(github_context){
+  const token = _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput('github-token', { required: true });
+  const octokit = _actions_github__WEBPACK_IMPORTED_MODULE_1__.getOctokit(token);
+  const {payload} = github_context;
+  const gitCommitSha =
+  payload?.pull_request?.head?.sha ||
+  payload?.workflow_run?.head_sha;
+
+  if (payload.number && payload.pull_request) {
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug('prNumber retrieved from pull_request');
+    prNumber = payload.number;
+  } else {
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug('Not a pull_request, so doing a API search');
+    // Inspired by https://github.com/orgs/community/discussions/25220#discussioncomment-8697399
+    const query = {
+      q: `repo:${github_context.repo.owner}/${github_context.repo.repo} is:pr sha:${gitCommitSha}`,
+      per_page: 1,
+    };
+    try {
+      const result = await octokit.rest.search.issuesAndPullRequests(query);
+      const pr = result.data.items.length > 0 && result.data.items[0];
+      _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`Found related pull_request: ${JSON.stringify(pr, null, 2)}`);
+      prNumber = pr ? pr.number : undefined;
+    } catch (e) {
+      // As mentioned in https://github.com/orgs/community/discussions/25220#discussioncomment-8971083
+      // from time to time, you may get rate limit errors given search API seems to use many calls internally.
+      _actions_core__WEBPACK_IMPORTED_MODULE_0__.warning(`Unable to get the PR number with API search: ${e}`);
+    }
+    return prNumber;
+  }
+}
 try {
   const surgeCliVersion = (0,_surge_utils__WEBPACK_IMPORTED_MODULE_2__/* .getSurgeCliVersion */ .re)();
   _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Surge cli version: ${surgeCliVersion}`);
+  
+  const {job, payload} = _actions_github__WEBPACK_IMPORTED_MODULE_1__.context;
+  const prNumber= await getPrNumber(_actions_github__WEBPACK_IMPORTED_MODULE_1__.context);
+  if(!prNumber){
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.setFailed('No PR number found');
+  }
 
-  const payload = _actions_github__WEBPACK_IMPORTED_MODULE_1__.context.payload;
-  const domain = (0,_utils_mjs__WEBPACK_IMPORTED_MODULE_3__/* .computeSurgeDomain */ .wp)(_actions_github__WEBPACK_IMPORTED_MODULE_1__.context.repo, _actions_github__WEBPACK_IMPORTED_MODULE_1__.context.job, payload.number);
+  const domain = (0,_utils_mjs__WEBPACK_IMPORTED_MODULE_3__/* .computeSurgeDomain */ .wp)(_actions_github__WEBPACK_IMPORTED_MODULE_1__.context.repo, job, prNumber);
   const previewUrl = `https://${domain}`;
   _actions_core__WEBPACK_IMPORTED_MODULE_0__.setOutput('preview-url', previewUrl);
   _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Computed preview url: ${previewUrl}`);
