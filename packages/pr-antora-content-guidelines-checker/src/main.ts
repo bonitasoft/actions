@@ -1,15 +1,10 @@
 import * as core from "@actions/core";
 import * as github from "@actions/github";
-import { ActionResult, Status, ValidationStep } from "./validation";
-import {
-  getModifiedFiles,
-  publishComment,
-  isCommentExist,
-  deleteComment,
-} from "./github-utils";
-import { AttributesCheckingStep } from "./steps/AttributesCheckingStep";
-import { ForbiddenPatternStep } from "./steps/ForbiddenPatternStep";
-import { GitHub } from "@actions/github/lib/utils";
+import {ActionResult, Status, ValidationStep} from "./validation";
+import {deleteComment, FILE_STATE, getFilesFromPR, isCommentExist, publishComment,} from "./github-utils";
+import {AttributesCheckingStep} from "./steps/AttributesCheckingStep";
+import {ForbiddenPatternStep} from "./steps/ForbiddenPatternStep";
+import {GitHub} from "@actions/github/lib/utils";
 
 const template = "<!-- previewCommentContributionChecker -->\n";
 
@@ -18,7 +13,8 @@ async function run(): Promise<void> {
     const token = core.getInput("github-token");
     const octokit: InstanceType<typeof GitHub> = github.getOctokit(token);
     let actionResult: ActionResult[] = [];
-    const modifiedFiles: string[] = await getModifiedFiles(octokit);
+    const modifiedFiles: string[] = await getFilesFromPR(octokit, [FILE_STATE.MODIFIER,FILE_STATE.ADDED]);
+
 
     const filesToCheckInput = core.getInput("files-to-check").split(",");
     const attributesToCheckInput = core

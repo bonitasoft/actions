@@ -2,6 +2,12 @@ import * as github from "@actions/github";
 import * as core from "@actions/core";
 import { GitHub } from "@actions/github/lib/utils";
 
+export enum FILE_STATE {
+  ADDED = "added",
+  REMOVED = "removed",
+  MODIFIER = "modified",
+}
+
 // Publish a comment on the PR with the results
 export async function publishComment(
   octokit: InstanceType<typeof GitHub>,
@@ -40,8 +46,8 @@ export async function getFileContent(
   return Buffer.from(data.content, "base64").toString();
 }
 
-export async function getModifiedFiles(
-  octokit: InstanceType<typeof GitHub>
+export async function getFilesFromPR(
+  octokit: InstanceType<typeof GitHub>, states: Array<FILE_STATE> = [FILE_STATE.MODIFIER,FILE_STATE.ADDED,FILE_STATE.REMOVED]
 ): Promise<string[]> {
   const prNumber = github?.context?.payload?.pull_request?.number;
   if (prNumber === undefined) {
@@ -56,9 +62,15 @@ export async function getModifiedFiles(
     pull_number: prNumber,
   });
 
-  const modifiedFiles = data.map((file: any) => file.filename);
-  core.debug(`Modified files in PR #${prNumber}: ${modifiedFiles}`);
-  return modifiedFiles;
+  core.debug(`Before filter, PR contains ${data.length} files touched`);
+  core.debug(`${states.join(' - ')}`);
+
+  const prFiles = data
+      .filter((file: any) => states.includes(file.status))
+      .map((file: any) => file.filename);
+
+  core.debug(`Analyze ${prFiles.length} files in PR #${prNumber}: ${prFiles}`);
+  return prFiles;
 }
 
 export async function isCommentExist({ octokit, template, prNumber }) {
