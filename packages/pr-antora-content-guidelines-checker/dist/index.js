@@ -39,9 +39,15 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.deleteComment = exports.updateComment = exports.createComment = exports.isCommentExist = exports.getModifiedFiles = exports.getFileContent = exports.publishComment = void 0;
+exports.deleteComment = exports.updateComment = exports.createComment = exports.isCommentExist = exports.getFilesFromPR = exports.getFileContent = exports.publishComment = exports.FILE_STATE = void 0;
 const github = __importStar(__nccwpck_require__(5438));
 const core = __importStar(__nccwpck_require__(2186));
+var FILE_STATE;
+(function (FILE_STATE) {
+    FILE_STATE["ADDED"] = "added";
+    FILE_STATE["REMOVED"] = "removed";
+    FILE_STATE["MODIFIER"] = "modified";
+})(FILE_STATE || (exports.FILE_STATE = FILE_STATE = {}));
 // Publish a comment on the PR with the results
 function publishComment(octokit, template, commentBody, prNumber) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -77,7 +83,11 @@ function getFileContent(octokit, filePath) {
     });
 }
 exports.getFileContent = getFileContent;
-function getModifiedFiles(octokit) {
+function getFilesFromPR(octokit, states = [
+    FILE_STATE.MODIFIER,
+    FILE_STATE.ADDED,
+    FILE_STATE.REMOVED,
+]) {
     var _a, _b, _c;
     return __awaiter(this, void 0, void 0, function* () {
         const prNumber = (_c = (_b = (_a = github === null || github === void 0 ? void 0 : github.context) === null || _a === void 0 ? void 0 : _a.payload) === null || _b === void 0 ? void 0 : _b.pull_request) === null || _c === void 0 ? void 0 : _c.number;
@@ -90,12 +100,16 @@ function getModifiedFiles(octokit) {
             repo: github.context.repo.repo,
             pull_number: prNumber,
         });
-        const modifiedFiles = data.map((file) => file.filename);
-        core.debug(`Modified files in PR #${prNumber}: ${modifiedFiles}`);
-        return modifiedFiles;
+        core.debug(`Before filter, PR contains ${data.length} files touched`);
+        core.debug(`${states.join(" - ")}`);
+        const prFiles = data
+            .filter((file) => states.includes(file.status))
+            .map((file) => file.filename);
+        core.debug(`Analyze ${prFiles.length} files in PR #${prNumber}: ${prFiles}`);
+        return prFiles;
     });
 }
-exports.getModifiedFiles = getModifiedFiles;
+exports.getFilesFromPR = getFilesFromPR;
 function isCommentExist({ octokit, template, prNumber }) {
     var _a;
     return __awaiter(this, void 0, void 0, function* () {
@@ -209,7 +223,10 @@ function run() {
             const token = core.getInput("github-token");
             const octokit = github.getOctokit(token);
             let actionResult = [];
-            const modifiedFiles = yield (0, github_utils_1.getModifiedFiles)(octokit);
+            const modifiedFiles = yield (0, github_utils_1.getFilesFromPR)(octokit, [
+                github_utils_1.FILE_STATE.MODIFIER,
+                github_utils_1.FILE_STATE.ADDED,
+            ]);
             const filesToCheckInput = core.getInput("files-to-check").split(",");
             const attributesToCheckInput = core
                 .getInput("attributes-to-check")

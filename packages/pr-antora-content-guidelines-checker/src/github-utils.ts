@@ -47,7 +47,12 @@ export async function getFileContent(
 }
 
 export async function getFilesFromPR(
-  octokit: InstanceType<typeof GitHub>, states: Array<FILE_STATE> = [FILE_STATE.MODIFIER,FILE_STATE.ADDED,FILE_STATE.REMOVED]
+  octokit: InstanceType<typeof GitHub>,
+  states: Array<FILE_STATE> = [
+    FILE_STATE.MODIFIER,
+    FILE_STATE.ADDED,
+    FILE_STATE.REMOVED,
+  ]
 ): Promise<string[]> {
   const prNumber = github?.context?.payload?.pull_request?.number;
   if (prNumber === undefined) {
@@ -63,11 +68,11 @@ export async function getFilesFromPR(
   });
 
   core.debug(`Before filter, PR contains ${data.length} files touched`);
-  core.debug(`${states.join(' - ')}`);
+  core.debug(`${states.join(" - ")}`);
 
   const prFiles = data
-      .filter((file: any) => states.includes(file.status))
-      .map((file: any) => file.filename);
+    .filter((file: any) => states.includes(file.status))
+    .map((file: any) => file.filename);
 
   core.debug(`Analyze ${prFiles.length} files in PR #${prNumber}: ${prFiles}`);
   return prFiles;
