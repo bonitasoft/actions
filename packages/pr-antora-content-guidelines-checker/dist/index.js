@@ -83,11 +83,7 @@ function getFileContent(octokit, filePath) {
     });
 }
 exports.getFileContent = getFileContent;
-function getFilesFromPR(octokit, states = [
-    FILE_STATE.MODIFIER,
-    FILE_STATE.ADDED,
-    FILE_STATE.REMOVED,
-]) {
+function getFilesFromPR(octokit, states = Object.values(FILE_STATE)) {
     var _a, _b, _c;
     return __awaiter(this, void 0, void 0, function* () {
         const prNumber = (_c = (_b = (_a = github === null || github === void 0 ? void 0 : github.context) === null || _a === void 0 ? void 0 : _a.payload) === null || _b === void 0 ? void 0 : _b.pull_request) === null || _c === void 0 ? void 0 : _c.number;
@@ -100,12 +96,12 @@ function getFilesFromPR(octokit, states = [
             repo: github.context.repo.repo,
             pull_number: prNumber,
         });
-        core.debug(`Before filter, PR contains ${data.length} files touched`);
-        core.debug(`${states.join(" - ")}`);
+        core.debug(`PR ${prNumber} contains ${data.length} files`);
+        core.debug(`Keep only files with status: ${states.join(" - ")}`);
         const prFiles = data
             .filter((file) => states.includes(file.status))
             .map((file) => file.filename);
-        core.debug(`Analyze ${prFiles.length} files in PR #${prNumber}: ${prFiles}`);
+        core.debug(`Analyze ${prFiles.length} files in PR #${prNumber}: \n ${prFiles.join("\n")}`);
         return prFiles;
     });
 }

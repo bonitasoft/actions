@@ -79,7 +79,7 @@ describe("github-utils", () => {
     });
 
     it("should failed if prNumber is not set", async () => {
-      //Overidde the github context
+      //Override the github context
       //@ts-ignore
       github.context.payload.pull_request.number = undefined;
 
