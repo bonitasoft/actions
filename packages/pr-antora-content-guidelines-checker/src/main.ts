@@ -2,10 +2,11 @@ import * as core from "@actions/core";
 import * as github from "@actions/github";
 import { ActionResult, Status, ValidationStep } from "./validation";
 import {
-  getModifiedFiles,
-  publishComment,
-  isCommentExist,
   deleteComment,
+  FILE_STATE,
+  getFilesFromPR,
+  isCommentExist,
+  publishComment,
 } from "./github-utils";
 import { AttributesCheckingStep } from "./steps/AttributesCheckingStep";
 import { ForbiddenPatternStep } from "./steps/ForbiddenPatternStep";
@@ -18,7 +19,11 @@ async function run(): Promise<void> {
     const token = core.getInput("github-token");
     const octokit: InstanceType<typeof GitHub> = github.getOctokit(token);
     let actionResult: ActionResult[] = [];
-    const modifiedFiles: string[] = await getModifiedFiles(octokit);
+    // The checks are done on the content of the files, so they must not be applied to deleted files whose content is no longer available
+    const modifiedFiles: string[] = await getFilesFromPR(octokit, [
+      FILE_STATE.MODIFIED,
+      FILE_STATE.ADDED,
+    ]);
 
     const filesToCheckInput = core.getInput("files-to-check").split(",");
     const attributesToCheckInput = core
