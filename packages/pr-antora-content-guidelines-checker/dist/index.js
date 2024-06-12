@@ -46,7 +46,7 @@ var FILE_STATE;
 (function (FILE_STATE) {
     FILE_STATE["ADDED"] = "added";
     FILE_STATE["REMOVED"] = "removed";
-    FILE_STATE["MODIFIER"] = "modified";
+    FILE_STATE["MODIFIED"] = "modified";
 })(FILE_STATE || (exports.FILE_STATE = FILE_STATE = {}));
 // Publish a comment on the PR with the results
 function publishComment(octokit, template, commentBody, prNumber) {
@@ -219,8 +219,9 @@ function run() {
             const token = core.getInput("github-token");
             const octokit = github.getOctokit(token);
             let actionResult = [];
+            // The checks are done on the content of the files, so they must not be applied to deleted files whose content is no longer available
             const modifiedFiles = yield (0, github_utils_1.getFilesFromPR)(octokit, [
-                github_utils_1.FILE_STATE.MODIFIER,
+                github_utils_1.FILE_STATE.MODIFIED,
                 github_utils_1.FILE_STATE.ADDED,
             ]);
             const filesToCheckInput = core.getInput("files-to-check").split(",");

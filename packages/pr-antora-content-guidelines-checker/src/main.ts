@@ -21,7 +21,7 @@ async function run(): Promise<void> {
     let actionResult: ActionResult[] = [];
     // The checks are done on the content of the files, so they must not be applied to deleted files whose content is no longer available
     const modifiedFiles: string[] = await getFilesFromPR(octokit, [
-      FILE_STATE.MODIFIER,
+      FILE_STATE.MODIFIED,
       FILE_STATE.ADDED,
     ]);
 

@@ -59,7 +59,7 @@ describe("github-utils", () => {
     it("should filter the files based on the provided states", async () => {
       const mockData = {
         data: [
-          { filename: "file1.ts", status: FILE_STATE.MODIFIER },
+          { filename: "file1.ts", status: FILE_STATE.MODIFIED },
           { filename: "file2.ts", status: FILE_STATE.ADDED },
           { filename: "file3.ts", status: FILE_STATE.REMOVED },
         ],
@@ -70,7 +70,7 @@ describe("github-utils", () => {
         .mockResolvedValue(mockData);
 
       const files = await githubUtils.getFilesFromPR(octokit, [
-        FILE_STATE.MODIFIER,
+        FILE_STATE.MODIFIED,
         FILE_STATE.ADDED,
       ]);
 
@@ -84,7 +84,7 @@ describe("github-utils", () => {
       github.context.payload.pull_request.number = undefined;
 
       const files: string[] = await githubUtils.getFilesFromPR(octokit, [
-        FILE_STATE.MODIFIER,
+        FILE_STATE.MODIFIED,
         FILE_STATE.ADDED,
       ]);
       expect(core.setFailed).toHaveBeenCalled();
