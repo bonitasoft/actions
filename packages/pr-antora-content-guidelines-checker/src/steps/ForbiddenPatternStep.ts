@@ -8,8 +8,20 @@ import { getFileContent } from "../github-utils";
 import * as core from "@actions/core";
 import { GitHub } from "@actions/github/lib/utils";
 
+
+type PatternCheckResult = {
+  pattern: string;
+} | null;
+
 /**
- * Step to validate if files contains some forbidden pattern (files path must contains modules/)
+ * A class that extends the ValidationStep class to validate if files contain any forbidden patterns.
+ * The files must be located in the modules/ directory.
+ *
+ * @property {string} name - The name of the validation step.
+ * @property {string} description - The description of the validation step.
+ * @property {string[]} patternChecking - The patterns to check in the files.
+ * @property {ActionResult | null} stepResult - The result of the validation step.
+ * @property {string[]} files - The files to validate.
  */
 export class ForbiddenPatternStep extends ValidationStep {
   name: string;
@@ -38,7 +50,8 @@ export class ForbiddenPatternStep extends ValidationStep {
   setAttributes(attributes: string[]) {
     this.patternChecking = attributes;
   }
-  validate = async (octokit: InstanceType<typeof GitHub>) => {
+
+  async validate (octokit: InstanceType<typeof GitHub>) {
     const results: ValidationResult[] = [];
     let onError = false;
     for (const file of this.files) {
@@ -59,7 +72,7 @@ export class ForbiddenPatternStep extends ValidationStep {
     return this.stepResult;
   };
 
-  formatCommentBody = (): string => {
+  formatCommentBody() : string {
     if (!this.stepResult || this.stepResult.status === Status.SUCCESS) {
       core.debug(`No section for ${this.name} step will be write.`);
       return "";
@@ -73,8 +86,14 @@ export class ForbiddenPatternStep extends ValidationStep {
     return commentBody;
   };
 
-  // Check if the content contains the attributes
-  checkPatternExistContent(patternChecking: string[], content: string) {
+  /**
+   * Checks if the content contains any of the specified patterns.
+   *
+   * @param {string[]} patternChecking - The patterns to check in the content.
+   * @param {string} content - The content to check.
+   * @returns {Object | null} - Returns an object with the patterns found, or null if no patterns were found.
+   */
+  checkPatternExistContent(patternChecking: string[], content: string): PatternCheckResult | null {
     const patternForbiddenFound = patternChecking.filter((pattern) =>
       content.includes(pattern)
     );
