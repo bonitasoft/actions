@@ -5,7 +5,7 @@
   "description": "Action that checks if the updated files follow the recommendation from the Bonita documentation team",
   "main": "lib/main.js",
   "scripts": {
-    "build": "tsc && npm run test",
+    "build": "tsc && npm test",
     "format": "prettier --write '**/*.ts'",
     "format-check": "prettier --check '**/*.ts'",
     "lint": "eslint src/**/*.ts",

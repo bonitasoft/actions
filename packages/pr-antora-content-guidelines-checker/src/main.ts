@@ -19,6 +19,7 @@ async function run(): Promise<void> {
     const token = core.getInput("github-token");
     const octokit: InstanceType<typeof GitHub> = github.getOctokit(token);
     let actionResult: ActionResult[] = [];
+    // The checks are done on the content of the files, so they must not be applied to deleted files whose content is no longer available
     const modifiedFiles: string[] = await getFilesFromPR(octokit, [
       FILE_STATE.MODIFIER,
       FILE_STATE.ADDED,

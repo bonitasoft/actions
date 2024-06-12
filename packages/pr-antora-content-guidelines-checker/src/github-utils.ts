@@ -5,7 +5,7 @@ import { GitHub } from "@actions/github/lib/utils";
 export enum FILE_STATE {
   ADDED = "added",
   REMOVED = "removed",
-  MODIFIER = "modified",
+  MODIFIED = "modified",
 }
 
 // Publish a comment on the PR with the results
