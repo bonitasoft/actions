@@ -443,12 +443,14 @@ class AttributesCheckingStep extends validation_1.ValidationStep {
             [attributeError.EMPTY.id]: [],
             [attributeError.BAD_LENGTH.id]: [],
         };
+        attributesToCheck.forEach((attribute) => {
+            if (!contentFile.includes(attribute)) {
+                errorReports[attributeError.MISSING.id].push(attribute);
+                return;
+            }
+        });
         lines.forEach((line) => {
             attributesToCheck.forEach((attribute) => {
-                if (!contentFile.includes(attribute)) {
-                    errorReports[attributeError.MISSING.id].push(attribute);
-                    return;
-                }
                 if (line.includes(attribute)) {
                     this.processAttributeInLine(attribute, line, errorReports);
                 }
