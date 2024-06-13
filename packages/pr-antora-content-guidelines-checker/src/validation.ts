@@ -29,7 +29,6 @@ export abstract class ValidationStep {
     modifiedFiles: string[]
   ): Promise<ActionResult>;
 
-
   /**
    * Checks if the file extension is allowed.
    *

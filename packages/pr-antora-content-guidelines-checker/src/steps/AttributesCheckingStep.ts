@@ -10,13 +10,13 @@ import { GitHub } from "@actions/github/lib/utils";
 
 type AttributeError = {
   [key: string]: {
-    id: string,
-    message: string,
-    lengthRequirement?: any,
-  }
-}
+    id: string;
+    message: string;
+    lengthRequirement?: any;
+  };
+};
 
-const attributeError: AttributeError= {
+const attributeError: AttributeError = {
   MISSING: {
     id: "missing",
     message: "are missing, please add them",
@@ -28,13 +28,13 @@ const attributeError: AttributeError= {
   BAD_LENGTH: {
     id: "bad_length",
     message: "have not enough characters, please add more content",
-    lengthRequirement : { ':description:': 25 }
+    lengthRequirement: { ":description:": 25 },
   },
 };
 
 type ErrorReports = {
   [key in keyof typeof attributeError]: string[];
-}
+};
 
 /**
  * A class that extends the ValidationStep class to validate if attributes exist in the files.
@@ -60,10 +60,11 @@ export class AttributesCheckingStep extends ValidationStep {
   ) {
     super();
     this.name = "Attributes validation";
-    this.description = "Some attributes issues are detected in the following files:"
+    this.description =
+      "Some attributes issues are detected in the following files:";
     this.stepResult = null;
     this.attributesToCheck = attributesToCheck;
-    this.files = this.filterFiles(files, extensionsToCheck)
+    this.files = this.filterFiles(files, extensionsToCheck);
   }
 
   setAttributes(attributes: string[]) {
@@ -80,10 +81,10 @@ export class AttributesCheckingStep extends ValidationStep {
     commentBody += `${this.description}\n`;
     this.stepResult.results.forEach((actionResult) => {
       commentBody += this.getFileReport(actionResult);
-    })
+    });
 
     return commentBody;
-  };
+  }
 
   async validate(octokit: InstanceType<typeof GitHub>): Promise<ActionResult> {
     const results: ValidationResult[] = [];
@@ -91,7 +92,10 @@ export class AttributesCheckingStep extends ValidationStep {
 
     for (const file of this.files) {
       const content = await getFileContent(octokit, file);
-      const errorReports = this.checkAttributesInContent(this.attributesToCheck, content);
+      const errorReports = this.checkAttributesInContent(
+        this.attributesToCheck,
+        content
+      );
 
       if (errorReports) {
         hasErrors = true;
@@ -113,11 +117,13 @@ export class AttributesCheckingStep extends ValidationStep {
    * @param {ValidationResult} validationResult - The validation results for the file.
    * @returns {string} - Returns a string that represents the report for the file.
    */
-  getFileReport(validationResult:ValidationResult): string{
+  getFileReport(validationResult: ValidationResult): string {
     let comment = `- [ ] In **${validationResult.file}**:\n\n| Attributes | Error |\n| --- | --- |\n`;
     const generateCommentForErrorType = (errorType: any) => {
       if (validationResult.details[errorType.id].length > 0) {
-        comment += `| ${validationResult.details[errorType.id].join(',') } | ${errorType.message} |\n`;
+        comment += `| ${validationResult.details[errorType.id].join(",")} | ${
+          errorType.message
+        } |\n`;
       }
     };
 
@@ -129,7 +135,8 @@ export class AttributesCheckingStep extends ValidationStep {
   }
 
   private filterFiles(files: string[], extensionsToCheck: string[]): string[] {
-    return files.filter(filePath =>
+    return files.filter(
+      (filePath) =>
         this.isExtensionAllowed(filePath, extensionsToCheck) &&
         filePath.includes("modules/") &&
         filePath.includes("/pages/")
@@ -143,17 +150,20 @@ export class AttributesCheckingStep extends ValidationStep {
    * @param {string} contentFile - The content of the file to check.
    * @returns {ErrorReports | null} - Returns an object containing arrays of attributes that are missing, empty, or do not meet the length requirement. If no errors are found, returns null.
    */
-  private checkAttributesInContent(attributesToCheck: string[], contentFile: string): ErrorReports | null{
-    const lines = contentFile.split('\n');
+  private checkAttributesInContent(
+    attributesToCheck: string[],
+    contentFile: string
+  ): ErrorReports | null {
+    const lines = contentFile.split("\n");
     let errorReports: ErrorReports = {
       [attributeError.MISSING.id]: [],
       [attributeError.EMPTY.id]: [],
       [attributeError.BAD_LENGTH.id]: [],
     };
 
-    lines.forEach(line => {
-      attributesToCheck.forEach(attribute => {
-        if(!contentFile.includes(attribute)){
+    lines.forEach((line) => {
+      attributesToCheck.forEach((attribute) => {
+        if (!contentFile.includes(attribute)) {
           errorReports[attributeError.MISSING.id].push(attribute);
           return;
         }
@@ -163,7 +173,11 @@ export class AttributesCheckingStep extends ValidationStep {
       });
     });
 
-    return (errorReports.empty.length > 0 || errorReports.missing.length > 0 || errorReports.bad_length.length > 0 ) ? errorReports : null;
+    return errorReports.empty.length > 0 ||
+      errorReports.missing.length > 0 ||
+      errorReports.bad_length.length > 0
+      ? errorReports
+      : null;
   }
 
   /**
@@ -173,9 +187,15 @@ export class AttributesCheckingStep extends ValidationStep {
    * @param {string} line - The line of content to check.
    * @param {ErrorReports} errorReports - The object to store any attribute errors found.
    */
-  private processAttributeInLine(attribute: string, line: string, errorReports: ErrorReports): void {
+  private processAttributeInLine(
+    attribute: string,
+    line: string,
+    errorReports: ErrorReports
+  ): void {
     const attributeIndex = line.indexOf(attribute);
-    const attributeValue = line.substring(attributeIndex + attribute.length).trim();
+    const attributeValue = line
+      .substring(attributeIndex + attribute.length)
+      .trim();
 
     if (!attributeValue) {
       errorReports[attributeError.EMPTY.id].push(attribute);
@@ -191,12 +211,15 @@ export class AttributesCheckingStep extends ValidationStep {
    * @param {string} attributeValue - The value of the attribute.
    * @returns {boolean} - Returns true if the attribute value's length is less than the required length, false otherwise.
    */
-  private doesNotMeetLengthRequirement(attribute: string, attributeValue: string): boolean {
-    return attributeError.BAD_LENGTH.lengthRequirement
-        && attributeError.BAD_LENGTH.lengthRequirement[attribute]
-        && attributeValue.length < attributeError.BAD_LENGTH.lengthRequirement[attribute];
+  private doesNotMeetLengthRequirement(
+    attribute: string,
+    attributeValue: string
+  ): boolean {
+    return (
+      attributeError.BAD_LENGTH.lengthRequirement &&
+      attributeError.BAD_LENGTH.lengthRequirement[attribute] &&
+      attributeValue.length <
+        attributeError.BAD_LENGTH.lengthRequirement[attribute]
+    );
   }
-
-
-
 }

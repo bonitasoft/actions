@@ -8,7 +8,6 @@ import { getFileContent } from "../github-utils";
 import * as core from "@actions/core";
 import { GitHub } from "@actions/github/lib/utils";
 
-
 type PatternCheckResult = {
   pattern: string;
 } | null;
@@ -51,7 +50,7 @@ export class ForbiddenPatternStep extends ValidationStep {
     this.patternChecking = attributes;
   }
 
-  async validate (octokit: InstanceType<typeof GitHub>) {
+  async validate(octokit: InstanceType<typeof GitHub>) {
     const results: ValidationResult[] = [];
     let onError = false;
     for (const file of this.files) {
@@ -70,9 +69,9 @@ export class ForbiddenPatternStep extends ValidationStep {
       results: results,
     };
     return this.stepResult;
-  };
+  }
 
-  formatCommentBody() : string {
+  formatCommentBody(): string {
     if (!this.stepResult || this.stepResult.status === Status.SUCCESS) {
       core.debug(`No section for ${this.name} step will be write.`);
       return "";
@@ -84,7 +83,7 @@ export class ForbiddenPatternStep extends ValidationStep {
       commentBody += `- [ ] Update **${actionResult.details}** syntax from **${actionResult.file}** \n`;
     });
     return commentBody;
-  };
+  }
 
   /**
    * Checks if the content contains any of the specified patterns.
@@ -93,7 +92,10 @@ export class ForbiddenPatternStep extends ValidationStep {
    * @param {string} content - The content to check.
    * @returns {Object | null} - Returns an object with the patterns found, or null if no patterns were found.
    */
-  checkPatternExistContent(patternChecking: string[], content: string): PatternCheckResult | null {
+  checkPatternExistContent(
+    patternChecking: string[],
+    content: string
+  ): PatternCheckResult | null {
     const patternForbiddenFound = patternChecking.filter((pattern) =>
       content.includes(pattern)
     );
