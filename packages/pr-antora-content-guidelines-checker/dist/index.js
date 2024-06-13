@@ -394,6 +394,7 @@ class AttributesCheckingStep extends validation_1.ValidationStep {
             for (const file of this.files) {
                 const content = yield (0, github_utils_1.getFileContent)(octokit, file);
                 const errorReports = this.checkAttributesInContent(this.attributesToCheck, content);
+                core.debug(`ErrorReport for ${file} - ${errorReports}`);
                 if (errorReports) {
                     hasErrors = true;
                     results.push({ file: file, details: errorReports });

@@ -96,7 +96,7 @@ export class AttributesCheckingStep extends ValidationStep {
         this.attributesToCheck,
         content
       );
-
+      core.debug(`ErrorReport for ${file} - ${errorReports}`);
       if (errorReports) {
         hasErrors = true;
         results.push({ file: file, details: errorReports });
