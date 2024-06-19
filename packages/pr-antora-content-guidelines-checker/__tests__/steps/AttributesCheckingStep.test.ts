@@ -12,87 +12,258 @@ describe("AttributesCheckingStep", () => {
   beforeEach(() => {
     jest.spyOn(core, "debug").mockImplementation(jest.fn());
   });
+  describe("should validate", () => {
+    it("with a success status and comment nothing when the attribute check step is valid", async () => {
+      const mockOctokit = {} as InstanceType<typeof GitHub>;
+      const files = ["modules/test/pages/test.adoc"];
+      const extensionsToCheck = ["adoc"];
+      const attributesToCheck = [":description:"];
 
-  it("should validate attributes correctly", async () => {
-    const mockOctokit = {} as InstanceType<typeof GitHub>;
-    const files = ["modules/test/pages/test.adoc"];
-    const extensionsToCheck = ["adoc"];
-    const attributesToCheck = [":page-aliases:"];
+      (getFileContent as jest.Mock).mockImplementation(
+        () =>
+          ":description: This is a valid content with more characters than requirement"
+      );
 
-    (getFileContent as jest.Mock).mockImplementation(
-      () => ":page-aliases: test"
-    );
+      const attributesCheckingStep = new AttributesCheckingStep(
+        files,
+        extensionsToCheck,
+        attributesToCheck
+      );
 
-    const attributesCheckingStep = new AttributesCheckingStep(
-      files,
-      extensionsToCheck,
-      attributesToCheck
-    );
+      await attributesCheckingStep.validate(mockOctokit);
+      const commentBody = attributesCheckingStep.formatCommentBody();
 
-    const result = await attributesCheckingStep.validate(mockOctokit);
+      expect(commentBody).toEqual("");
+      expect(core.debug).toHaveBeenCalled();
+    });
 
-    expect(result).toEqual({
-      status: Status.SUCCESS,
-      results: [],
+    it("with success when the content is valid", async () => {
+      const mockOctokit = {} as InstanceType<typeof GitHub>;
+      const files = ["modules/test/pages/test.adoc"];
+      const extensionsToCheck = ["adoc"];
+      const attributesToCheck = [":page-aliases:"];
+
+      (getFileContent as jest.Mock).mockImplementation(
+        () => ":page-aliases: test"
+      );
+
+      const attributesCheckingStep = new AttributesCheckingStep(
+        files,
+        extensionsToCheck,
+        attributesToCheck
+      );
+
+      const result = await attributesCheckingStep.validate(mockOctokit);
+
+      expect(result).toEqual({
+        status: Status.SUCCESS,
+        results: [],
+      });
+    });
+
+    it("with a MISSING error when attribute to check is missing", async () => {
+      const mockOctokit = {} as InstanceType<typeof GitHub>;
+      const files = ["modules/test/pages/test.adoc"];
+      const extensionsToCheck = ["adoc"];
+      const attributesToCheck = [":description:"];
+
+      (getFileContent as jest.Mock).mockImplementation(
+        () => ":page-aliases: test"
+      );
+
+      const attributesCheckingStep = new AttributesCheckingStep(
+        files,
+        extensionsToCheck,
+        attributesToCheck
+      );
+
+      const result = await attributesCheckingStep.validate(mockOctokit);
+
+      expect(result).toEqual({
+        status: Status.ERROR,
+        results: [
+          {
+            file: "modules/test/pages/test.adoc",
+            details: {
+              missing: [":description:"],
+              empty: [],
+              bad_length: [],
+            },
+          },
+        ],
+      });
+    });
+
+    it("with a BAD_LENGTH error status when attribute exist, but not follow the length requirement", async () => {
+      const mockOctokit = {} as InstanceType<typeof GitHub>;
+      const files = ["modules/test/pages/test.adoc"];
+      const extensionsToCheck = ["adoc"];
+      const attributesToCheck = [":description:"];
+
+      (getFileContent as jest.Mock).mockImplementation(
+        () => ":description: a little description \n test"
+      );
+
+      const attributesCheckingStep = new AttributesCheckingStep(
+        files,
+        extensionsToCheck,
+        attributesToCheck
+      );
+
+      const result = await attributesCheckingStep.validate(mockOctokit);
+
+      expect(result).toEqual({
+        status: Status.ERROR,
+        results: [
+          {
+            file: "modules/test/pages/test.adoc",
+            details: {
+              empty: [],
+              missing: [],
+              bad_length: [":description:"],
+            },
+          },
+        ],
+      });
+    });
+
+    it("with a EMPTY error status when attribute exist, but with a empty content", async () => {
+      const mockOctokit = {} as InstanceType<typeof GitHub>;
+      const files = ["modules/test/pages/test.adoc"];
+      const extensionsToCheck = ["adoc"];
+      const attributesToCheck = [":description:"];
+
+      (getFileContent as jest.Mock).mockImplementation(
+        () => ":description:\n test"
+      );
+
+      const attributesCheckingStep = new AttributesCheckingStep(
+        files,
+        extensionsToCheck,
+        attributesToCheck
+      );
+
+      const result = await attributesCheckingStep.validate(mockOctokit);
+
+      expect(result).toEqual({
+        status: Status.ERROR,
+        results: [
+          {
+            file: "modules/test/pages/test.adoc",
+            details: {
+              empty: [":description:"],
+              missing: [],
+              bad_length: [],
+            },
+          },
+        ],
+      });
+    });
+
+    it("from a complex content", async () => {
+      const mockOctokit = {} as InstanceType<typeof GitHub>;
+      const files = ["modules/test/pages/test.adoc"];
+      const extensionsToCheck = ["adoc"];
+      const attributesToCheck = [":description:", ":page-aliases:"];
+
+      (getFileContent as jest.Mock).mockImplementation(
+        () =>
+          "= Title of my document" +
+          ":page-aliases: \n" +
+          ":description: This a long description of my fake document to check if validation is robust\n\n" +
+          "== Sub Title of the fake document" +
+          ""
+      );
+
+      const attributesCheckingStep = new AttributesCheckingStep(
+        files,
+        extensionsToCheck,
+        attributesToCheck
+      );
+
+      const result = await attributesCheckingStep.validate(mockOctokit);
+
+      expect(result).toEqual({
+        status: Status.ERROR,
+        results: [
+          {
+            file: "modules/test/pages/test.adoc",
+            details: {
+              empty: [":page-aliases:"],
+              missing: [],
+              bad_length: [],
+            },
+          },
+        ],
+      });
     });
   });
+  describe("getFileReport", () => {
+    it("should generate a report with for an empty attribute", () => {
+      const attributesCheckingStep = new AttributesCheckingStep([], [], []);
 
-  it("should return error status when attributes are missing and write comment", async () => {
-    const mockOctokit = {} as InstanceType<typeof GitHub>;
-    const files = ["modules/test/pages/test.adoc"];
-    const extensionsToCheck = ["adoc"];
-    const attributesToCheck = [":description:"];
-
-    (getFileContent as jest.Mock).mockImplementation(
-      () => ":page-aliases: test"
-    );
-
-    const attributesCheckingStep = new AttributesCheckingStep(
-      files,
-      extensionsToCheck,
-      attributesToCheck
-    );
-
-    const result = await attributesCheckingStep.validate(mockOctokit);
-    const commentBody = attributesCheckingStep.formatCommentBody();
-
-    expect(result).toEqual({
-      status: Status.ERROR,
-      results: [
-        {
-          file: "modules/test/pages/test.adoc",
-          details: ":description:",
+      const validationResult = {
+        file: "modules/test/pages/test.adoc",
+        details: {
+          missing: [],
+          empty: [":description:"],
+          bad_length: [],
         },
-      ],
+      };
+
+      const report = attributesCheckingStep.getFileReport(validationResult);
+
+      expect(report).toEqual(
+        `- [ ] In **modules/test/pages/test.adoc**:\n\n` +
+          `| Attributes | Error |\n` +
+          `| --- | --- |\n` +
+          `| :description: | are empty, please fill them |\n`
+      );
     });
 
-    expect(commentBody).toEqual(
-      "## :pause_button: Attributes validation \n" +
-        "Some attributes are missing in the following files:\n" +
-        "- [ ] **:description:** are missing in **modules/test/pages/test.adoc** \n"
-    );
-  });
+    it("should generate a report with for a missing attribute", () => {
+      const attributesCheckingStep = new AttributesCheckingStep([], [], []);
 
-  it("should comment nothing when the attribute check step is valid", async () => {
-    const mockOctokit = {} as InstanceType<typeof GitHub>;
-    const files = ["modules/test/pages/test.adoc"];
-    const extensionsToCheck = ["adoc"];
-    const attributesToCheck = [":description:"];
+      const validationResult = {
+        file: "modules/test/pages/test.adoc",
+        details: {
+          missing: [":description:"],
+          empty: [],
+          bad_length: [],
+        },
+      };
 
-    (getFileContent as jest.Mock).mockImplementation(
-      () => ":description: test"
-    );
+      const report = attributesCheckingStep.getFileReport(validationResult);
 
-    const attributesCheckingStep = new AttributesCheckingStep(
-      files,
-      extensionsToCheck,
-      attributesToCheck
-    );
+      expect(report).toEqual(
+        `- [ ] In **modules/test/pages/test.adoc**:\n\n` +
+          `| Attributes | Error |\n` +
+          `| --- | --- |\n` +
+          `| :description: | are missing, please add them |\n`
+      );
+    });
 
-    await attributesCheckingStep.validate(mockOctokit);
-    const commentBody = attributesCheckingStep.formatCommentBody();
+    it("should generate a file report with 2 issues", () => {
+      const attributesCheckingStep = new AttributesCheckingStep([], [], []);
 
-    expect(commentBody).toEqual("");
-    expect(core.debug).toHaveBeenCalled();
+      const validationResult = {
+        file: "modules/test/pages/test.adoc",
+        details: {
+          missing: [],
+          empty: [":description:"],
+          bad_length: [":page-aliases:"],
+        },
+      };
+
+      const report = attributesCheckingStep.getFileReport(validationResult);
+
+      expect(report).toEqual(
+        `- [ ] In **modules/test/pages/test.adoc**:\n\n` +
+          `| Attributes | Error |\n` +
+          `| --- | --- |\n` +
+          `| :description: | are empty, please fill them |\n` +
+          `| :page-aliases: | have not enough characters, please add more content |\n`
+      );
+    });
   });
 });

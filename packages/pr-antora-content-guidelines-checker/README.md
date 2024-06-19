@@ -42,7 +42,7 @@ For each file updated in the pull request, check if the files contains the value
 
 ### Forbidden Pattern
 
-For each file updated in the pull request, check if the files contains the value of `attributes-to-check` properties and failed if pattern is exist.
+For each file updated in the pull request, check if the files contains the value of `attributes-to-check` properties and failed if attribute is missing, if the value is empty or if the length of the value is not enough.
 
 ## Development
 

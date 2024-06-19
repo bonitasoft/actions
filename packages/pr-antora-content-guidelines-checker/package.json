@@ -1,6 +1,6 @@
 {
   "name": "pr-antora-content-guidelines-checker",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "private": true,
   "description": "Action that checks if the updated files follow the recommendation from the Bonita documentation team",
   "main": "lib/main.js",

@@ -336,59 +336,163 @@ exports.AttributesCheckingStep = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const validation_1 = __nccwpck_require__(581);
 const github_utils_1 = __nccwpck_require__(3212);
+const attributeError = {
+    MISSING: {
+        id: "missing",
+        message: "are missing, please add them",
+    },
+    EMPTY: {
+        id: "empty",
+        message: "are empty, please fill them",
+    },
+    BAD_LENGTH: {
+        id: "bad_length",
+        message: "have not enough characters, please add more content",
+        lengthRequirement: { ":description:": 25 },
+    },
+};
 /**
- * Step to validate if attributes are exist in the files (must be content in modules/ or /pages/ folders)
+ * A class that extends the ValidationStep class to validate if attributes exist in the files.
+ * The files must be content in modules/ or /pages/ folders.
+ *
+ * @property {string} name - The name of the validation step.
+ * @property {string} description - The description of the validation step.
+ * @property {string[]} attributesToCheck - The attributes to check in the files.
+ * @property {ActionResult | null} stepResult - The result of the validation step.
+ * @property {string[]} files - The files to validate.
  */
 class AttributesCheckingStep extends validation_1.ValidationStep {
     constructor(files, extensionsToCheck, attributesToCheck) {
         super();
-        this.attributesChecking = [];
-        this.validate = (octokit) => __awaiter(this, void 0, void 0, function* () {
+        this.attributesToCheck = [];
+        this.name = "Attributes validation";
+        this.description =
+            "Some attributes issues are detected in the following files:";
+        this.stepResult = null;
+        this.attributesToCheck = attributesToCheck;
+        this.files = this.filterFiles(files, extensionsToCheck);
+    }
+    setAttributes(attributes) {
+        this.attributesToCheck = attributes;
+    }
+    formatCommentBody() {
+        if (!this.stepResult || this.stepResult.status === validation_1.Status.SUCCESS) {
+            core.debug(`No section for ${this.name} step will be write.`);
+            return "";
+        }
+        let commentBody = `## :pause_button: ${this.name} \n`;
+        commentBody += `${this.description}\n`;
+        this.stepResult.results.forEach((actionResult) => {
+            commentBody += this.getFileReport(actionResult);
+        });
+        return commentBody;
+    }
+    validate(octokit) {
+        return __awaiter(this, void 0, void 0, function* () {
             const results = [];
-            let onError = false;
+            let hasErrors = false;
             for (const file of this.files) {
                 const content = yield (0, github_utils_1.getFileContent)(octokit, file);
-                const result = this.checkPatternExistContent(this.attributesChecking, content);
-                if (result) {
-                    onError = true;
-                    results.push({ file: file, details: result.missingAttribute });
+                const errorReports = this.checkAttributesInContent(this.attributesToCheck, content);
+                if (errorReports) {
+                    hasErrors = true;
+                    results.push({ file: file, details: errorReports });
                 }
             }
             this.stepResult = {
-                status: onError ? validation_1.Status.ERROR : validation_1.Status.SUCCESS,
+                status: hasErrors ? validation_1.Status.ERROR : validation_1.Status.SUCCESS,
                 results: results,
             };
             return this.stepResult;
         });
-        this.formatCommentBody = () => {
-            if (!this.stepResult || this.stepResult.status === validation_1.Status.SUCCESS) {
-                core.debug(`No section for ${this.name} step will be write.`);
-                return "";
+    }
+    /**
+     * Generates a report for a file based on the validation results.
+     *
+     * @param {ValidationResult} validationResult - The validation results for the file.
+     * @returns {string} - Returns a string that represents the report for the file.
+     */
+    getFileReport(validationResult) {
+        let comment = `- [ ] In **${validationResult.file}**:\n\n| Attributes | Error |\n| --- | --- |\n`;
+        const generateCommentForErrorType = (errorType) => {
+            if (validationResult.details[errorType.id].length > 0) {
+                comment += `| ${validationResult.details[errorType.id].join(",")} | ${errorType.message} |\n`;
             }
-            let commentBody = `## :pause_button: ${this.name} \n`;
-            commentBody += `${this.description}\n`;
-            this.stepResult.results.forEach((actionResult) => {
-                commentBody += `- [ ] **${actionResult.details}** are missing in **${actionResult.file}** \n`;
-            });
-            return commentBody;
         };
-        this.name = "Attributes validation";
-        this.description = "Some attributes are missing in the following files:";
-        this.stepResult = null;
-        this.attributesChecking = attributesToCheck;
-        this.files = files.filter((filePath) => this.isExtensionAllowed(filePath, extensionsToCheck) &&
+        generateCommentForErrorType(attributeError.MISSING);
+        generateCommentForErrorType(attributeError.EMPTY);
+        generateCommentForErrorType(attributeError.BAD_LENGTH);
+        return comment;
+    }
+    filterFiles(files, extensionsToCheck) {
+        return files.filter((filePath) => this.isExtensionAllowed(filePath, extensionsToCheck) &&
             filePath.includes("modules/") &&
             filePath.includes("/pages/"));
     }
-    setAttributes(attributes) {
-        this.attributesChecking = attributes;
-    }
-    // Check if the content contains the attributes
-    checkPatternExistContent(attributesChecking, content) {
-        const missingTags = attributesChecking.filter((tag) => !content.includes(tag));
-        return missingTags.length > 0
-            ? { missingAttribute: missingTags.join(",") }
+    /**
+     * Checks the content of a file for specified attributes and generates a report of any errors found.
+     *
+     * @param {string[]} attributesToCheck - The attributes to check in the content.
+     * @param {string} contentFile - The content of the file to check.
+     * @returns {ErrorReports | null} - Returns an object containing arrays of attributes that are missing, empty, or do not meet the length requirement. If no errors are found, returns null.
+     */
+    checkAttributesInContent(attributesToCheck, contentFile) {
+        const lines = contentFile.split("\n");
+        let errorReports = {
+            [attributeError.MISSING.id]: [],
+            [attributeError.EMPTY.id]: [],
+            [attributeError.BAD_LENGTH.id]: [],
+        };
+        attributesToCheck.forEach((attribute) => {
+            if (!contentFile.includes(attribute)) {
+                errorReports[attributeError.MISSING.id].push(attribute);
+                return;
+            }
+        });
+        lines.forEach((line) => {
+            attributesToCheck.forEach((attribute) => {
+                if (line.includes(attribute)) {
+                    this.processAttributeInLine(attribute, line, errorReports);
+                }
+            });
+        });
+        return errorReports.empty.length > 0 ||
+            errorReports.missing.length > 0 ||
+            errorReports.bad_length.length > 0
+            ? errorReports
             : null;
+    }
+    /**
+     * Processes a line of content to check for attribute errors.
+     *
+     * @param {string} attribute - The attribute to check in the line.
+     * @param {string} line - The line of content to check.
+     * @param {ErrorReports} errorReports - The object to store any attribute errors found.
+     */
+    processAttributeInLine(attribute, line, errorReports) {
+        const attributeIndex = line.indexOf(attribute);
+        const attributeValue = line
+            .substring(attributeIndex + attribute.length)
+            .trim();
+        if (!attributeValue) {
+            errorReports[attributeError.EMPTY.id].push(attribute);
+        }
+        else if (this.doesNotMeetLengthRequirement(attribute, attributeValue)) {
+            errorReports[attributeError.BAD_LENGTH.id].push(attribute);
+        }
+    }
+    /**
+     * Checks if the length of the attribute value does not meet the required length.
+     *
+     * @param {string} attribute - The attribute to check.
+     * @param {string} attributeValue - The value of the attribute.
+     * @returns {boolean} - Returns true if the attribute value's length is less than the required length, false otherwise.
+     */
+    doesNotMeetLengthRequirement(attribute, attributeValue) {
+        return (attributeError.BAD_LENGTH.lengthRequirement &&
+            attributeError.BAD_LENGTH.lengthRequirement[attribute] &&
+            attributeValue.length <
+                attributeError.BAD_LENGTH.lengthRequirement[attribute]);
     }
 }
 exports.AttributesCheckingStep = AttributesCheckingStep;
@@ -439,13 +543,31 @@ const validation_1 = __nccwpck_require__(581);
 const github_utils_1 = __nccwpck_require__(3212);
 const core = __importStar(__nccwpck_require__(2186));
 /**
- * Step to validate if files contains some forbidden pattern (files path must contains modules/)
+ * A class that extends the ValidationStep class to validate if files contain any forbidden patterns.
+ * The files must be located in the modules/ directory.
+ *
+ * @property {string} name - The name of the validation step.
+ * @property {string} description - The description of the validation step.
+ * @property {string[]} patternChecking - The patterns to check in the files.
+ * @property {ActionResult | null} stepResult - The result of the validation step.
+ * @property {string[]} files - The files to validate.
  */
 class ForbiddenPatternStep extends validation_1.ValidationStep {
     constructor(files, extensionsToCheck, patternChecking) {
         super();
         this.patternChecking = [];
-        this.validate = (octokit) => __awaiter(this, void 0, void 0, function* () {
+        this.name = "Forbidden pattern validation";
+        this.description = "Some patterns are forbidden in the following files:";
+        this.stepResult = null;
+        this.patternChecking = patternChecking;
+        this.files = files.filter((filePath) => this.isExtensionAllowed(filePath, extensionsToCheck) &&
+            filePath.includes("modules/"));
+    }
+    setAttributes(attributes) {
+        this.patternChecking = attributes;
+    }
+    validate(octokit) {
+        return __awaiter(this, void 0, void 0, function* () {
             const results = [];
             let onError = false;
             for (const file of this.files) {
@@ -462,29 +584,26 @@ class ForbiddenPatternStep extends validation_1.ValidationStep {
             };
             return this.stepResult;
         });
-        this.formatCommentBody = () => {
-            if (!this.stepResult || this.stepResult.status === validation_1.Status.SUCCESS) {
-                core.debug(`No section for ${this.name} step will be write.`);
-                return "";
-            }
-            let commentBody = `## :no_entry: ${this.name} \n`;
-            commentBody += `${this.description}\n`;
-            this.stepResult.results.forEach((actionResult) => {
-                commentBody += `- [ ] Update **${actionResult.details}** syntax from **${actionResult.file}** \n`;
-            });
-            return commentBody;
-        };
-        this.name = "Forbidden pattern validation";
-        this.description = "Some patterns are forbidden in the following files:";
-        this.stepResult = null;
-        this.patternChecking = patternChecking;
-        this.files = files.filter((filePath) => this.isExtensionAllowed(filePath, extensionsToCheck) &&
-            filePath.includes("modules/"));
     }
-    setAttributes(attributes) {
-        this.patternChecking = attributes;
+    formatCommentBody() {
+        if (!this.stepResult || this.stepResult.status === validation_1.Status.SUCCESS) {
+            core.debug(`No section for ${this.name} step will be write.`);
+            return "";
+        }
+        let commentBody = `## :no_entry: ${this.name} \n`;
+        commentBody += `${this.description}\n`;
+        this.stepResult.results.forEach((actionResult) => {
+            commentBody += `- [ ] Update **${actionResult.details}** syntax from **${actionResult.file}** \n`;
+        });
+        return commentBody;
     }
-    // Check if the content contains the attributes
+    /**
+     * Checks if the content contains any of the specified patterns.
+     *
+     * @param {string[]} patternChecking - The patterns to check in the content.
+     * @param {string} content - The content to check.
+     * @returns {Object | null} - Returns an object with the patterns found, or null if no patterns were found.
+     */
     checkPatternExistContent(patternChecking, content) {
         const patternForbiddenFound = patternChecking.filter((pattern) => content.includes(pattern));
         return patternForbiddenFound.length > 0
@@ -504,7 +623,21 @@ exports.ForbiddenPatternStep = ForbiddenPatternStep;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Status = exports.ValidationStep = void 0;
+/**
+ * An abstract class that defines the structure for validation steps.
+ *
+ * @property {string} name - The name of the validation step.
+ * @property {string} description - The description of the validation step.
+ * @property {ActionResult | null} stepResult - The result of the validation step.
+ */
 class ValidationStep {
+    /**
+     * Checks if the file extension is allowed.
+     *
+     * @param {string} filePath - The path of the file to check.
+     * @param {string[]} allowedExtensions - The allowed file extensions.
+     * @returns {boolean} - Returns true if the file extension is allowed, false otherwise.
+     */
     isExtensionAllowed(filePath, allowedExtensions) {
         // Get the last occurrence of "." in the filePath
         const lastDotIndex = filePath.lastIndexOf(".");
