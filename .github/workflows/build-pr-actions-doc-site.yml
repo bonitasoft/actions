@@ -32,5 +32,6 @@ jobs:
         if: success() || failure()
         with:
           name: Tests Report
-          path: packages/doc-contribs/**/reports/jest-*.xml
+          path: 'packages/doc-contribs/**/reports/jest-unit.xml'
           reporter: jest-junit
+
