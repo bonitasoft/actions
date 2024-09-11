@@ -1,12 +1,6 @@
 import * as core from "@actions/core";
 import * as github from "@actions/github";
-import {
-  deleteComment,
-  FILE_STATE,
-  getFilesFromPR,
-  isCommentExist,
-  publishComment,
-} from "./github-utils";
+import * as common from "actions-common";
 
 import { GitHub } from "@actions/github/lib/utils";
 
@@ -18,9 +12,9 @@ async function run(): Promise<void> {
     const octokit: InstanceType<typeof GitHub> = github.getOctokit(token);
 
     // The checks are done on the content of the files, so they must not be applied to deleted files whose content is no longer available
-    const modifiedFiles: string[] = await getFilesFromPR(octokit, [
-      FILE_STATE.MODIFIED,
-      FILE_STATE.ADDED,
+    const modifiedFiles: string[] = await common.getFilesFromPR(octokit, [
+      common.FILE_STATE.MODIFIED,
+      common.FILE_STATE.ADDED,
     ]);
 
     const filesToCheckInput = core.getInput("files-to-check").split(",");
@@ -50,7 +44,7 @@ async function run(): Promise<void> {
           template + "# Contribution Guidelines checks\n";
       commentBody += `The content of the files modified by this Pull Request doesn't match the Contribution Guidelines. \n \n Please update the following files.\n`;
 
-      comment = await publishComment(
+      comment = await common.publishComment(
           octokit,
           template,
           commentBody,

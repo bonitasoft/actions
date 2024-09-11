@@ -1,13 +1,7 @@
 import * as core from "@actions/core";
 import * as github from "@actions/github";
 import { ActionResult, Status, ValidationStep } from "./validation";
-import {
-  deleteComment,
-  FILE_STATE,
-  getFilesFromPR,
-  isCommentExist,
-  publishComment,
-} from "./github-utils";
+import * as common from "actions-common";
 import { AttributesCheckingStep } from "./steps/AttributesCheckingStep";
 import { ForbiddenPatternStep } from "./steps/ForbiddenPatternStep";
 import { GitHub } from "@actions/github/lib/utils";
@@ -20,9 +14,9 @@ async function run(): Promise<void> {
     const octokit: InstanceType<typeof GitHub> = github.getOctokit(token);
     let actionResult: ActionResult[] = [];
     // The checks are done on the content of the files, so they must not be applied to deleted files whose content is no longer available
-    const modifiedFiles: string[] = await getFilesFromPR(octokit, [
-      FILE_STATE.MODIFIED,
-      FILE_STATE.ADDED,
+    const modifiedFiles: string[] = await common.getFilesFromPR(octokit, [
+      common.FILE_STATE.MODIFIED,
+      common.FILE_STATE.ADDED,
     ]);
 
     const filesToCheckInput = core.getInput("files-to-check").split(",");
@@ -83,7 +77,7 @@ async function run(): Promise<void> {
         steps.forEach((step) => {
           commentBody += step.formatCommentBody();
         });
-        comment = await publishComment(
+        comment = await common.publishComment(
           octokit,
           template,
           commentBody,
@@ -96,7 +90,7 @@ async function run(): Promise<void> {
         `❌ This PR did not meet all the guidelines, see PR comments for details. (${comment.data.html_url})`
       );
     } else {
-      const { exists, id } = await isCommentExist({
+      const { exists, id } = await common.isCommentExist({
         octokit,
         template,
         prNumber,
@@ -104,7 +98,7 @@ async function run(): Promise<void> {
       core.info(`✅ The Contribution follows the guideline. Well done !`);
       if (exists && id) {
         core.info(`Delete oldest comment for PR #${prNumber}`);
-        await deleteComment({ octokit, commentIdToDelete: id });
+        await common.deleteComment({ octokit, commentIdToDelete: id });
       }
     }
   } catch (error) {

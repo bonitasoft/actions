@@ -1,0 +1,12 @@
+{
+  "private": true,
+  "workspaces": [
+    "common",
+    "pr-antora-content-guidelines-checker",
+    "pr-comments-with-links"
+  ],
+  "dependencies": {
+    "@actions/core": "~1.10.0",
+    "@actions/github": "^6.0.0"
+  }
+}
