@@ -7,7 +7,7 @@ import {
   getFilesFromPR,
   isCommentExist,
   publishComment,
-} from "./github-utils";
+} from "actions-common";
 import { AttributesCheckingStep } from "./steps/AttributesCheckingStep";
 import { ForbiddenPatternStep } from "./steps/ForbiddenPatternStep";
 import { GitHub } from "@actions/github/lib/utils";

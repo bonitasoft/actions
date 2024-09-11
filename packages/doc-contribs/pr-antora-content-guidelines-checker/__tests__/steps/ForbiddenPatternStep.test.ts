@@ -1,10 +1,10 @@
 import { GitHub } from "@actions/github/lib/utils";
 import { ForbiddenPatternStep } from "../../src/steps/ForbiddenPatternStep";
-import { getFileContent } from "../../src/github-utils";
+import { getFileContent } from "actions-common";
 import { Status } from "../../src/validation";
 import * as core from "@actions/core";
 
-jest.mock("../../src/github-utils", () => ({
+jest.mock("actions-common", () => ({
   getFileContent: jest.fn(),
 }));
 

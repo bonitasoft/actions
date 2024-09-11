@@ -1,14 +1,16 @@
-name: Build PR antora content guidelines checker
+name: Build PR documentation site actions
 
 on:
   push:
     branches: [ main ]
     paths:
-      - 'packages/pr-antora-content-guidelines-checker/*'
+      - 'packages/doc-contribs/*'
+      - '!packages/doc-contribs/*.md'
   pull_request:
     branches: [ main ]
     paths:
-      - 'packages/pr-antora-content-guidelines-checker/*'
+      - 'packages/doc-contribs/*'
+      - '!packages/doc-contribs/*.md'
 
   workflow_dispatch:
 
@@ -21,7 +23,6 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v4
         with:
-          node-version-file: 'packages/pr-antora-content-guidelines-checker/.nvmrc'
+          node-version-file: 'packages/doc-contribs/.nvmrc'
       - name: Install and Test
         run: npm ci && npm run package:all
-        working-directory: packages/pr-antora-content-guidelines-checker
