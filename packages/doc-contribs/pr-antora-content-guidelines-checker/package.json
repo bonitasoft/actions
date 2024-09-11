@@ -11,7 +11,7 @@
     "lint": "eslint src/**/*.ts",
     "package": "ncc build --source-map --license licenses.txt",
     "package:all": "npm run format && npm run build && npm run package",
-    "test": "jest --ci --reporters=default --reporters=jest-junit"
+    "test": "jest"
   },
   "repository": {
     "type": "git",
@@ -32,14 +32,5 @@
   "homepage": "https://github.com/bonitasoft/actions/tree/main/packages/doc-contribs/pr-antora-content-guidelines-checker#readme",
   "devDependencies": {
     "@vercel/ncc": "^0.36.1"
-  },
-  "jest-junit": {
-    "outputDirectory": "reports",
-    "outputName": "jest-junit.xml",
-    "ancestorSeparator": " › ",
-    "uniqueOutputName": "false",
-    "suiteNameTemplate": "{filepath}",
-    "classNameTemplate": "{classname}",
-    "titleTemplate": "{title}"
   }
 }
