@@ -26,3 +26,4 @@ jobs:
           node-version-file: 'packages/doc-contribs/.nvmrc'
       - name: Install and Test
         run: npm ci && npm run package:all
+        working-directory: packages/doc-contribs
