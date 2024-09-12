@@ -46,10 +46,14 @@ export async function getFileContent(
   return Buffer.from(data.content, "base64").toString();
 }
 
+export type FileInfo= {
+  filename: string;
+  status: FILE_STATE;
+}
 export async function getFilesFromPR(
   octokit: InstanceType<typeof GitHub>,
   states: Array<FILE_STATE> = Object.values(FILE_STATE)
-): Promise<string[]> {
+): Promise<FileInfo[]> {
   const prNumber = github?.context?.payload?.pull_request?.number;
   if (prNumber === undefined) {
     core.setFailed(
@@ -68,7 +72,7 @@ export async function getFilesFromPR(
 
   const prFiles = data
     .filter((file: any) => states.includes(file.status))
-    .map((file: any) => file.filename);
+    .map((file: any) => ({ filename: file.filename, status: file.status }))
 
   core.debug(
     `Analyze ${prFiles.length} files in PR #${prNumber}: \n ${prFiles.join(

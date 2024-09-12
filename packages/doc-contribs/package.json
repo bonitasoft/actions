@@ -2,7 +2,8 @@
   "private": true,
   "workspaces": [
     "common",
-    "pr-antora-content-guidelines-checker"
+    "pr-antora-content-guidelines-checker",
+    "pr-comments-with-links"
   ],
   "description": "Workspace for the documentation site specific actions",
   "engines" : {
