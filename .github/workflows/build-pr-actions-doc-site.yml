@@ -10,7 +10,7 @@ on:
     branches: [ main ]
     paths:
       - 'packages/doc-contribs/*'
-      - '!packages/doc-contribs/*.md'
+      - '!packages/doc-contribs/**/*.md'
   workflow_dispatch:
 permissions:
   contents: read

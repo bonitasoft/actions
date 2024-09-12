@@ -1,6 +1,6 @@
-# Documentation site action
+# Actions for Documentation Contributions
 
-This workspace contains the documentation site action.
+This workspace contains the actions used to help contributors of the Bonitasoft Documentation.
 
 It is composed of two packages:
 
