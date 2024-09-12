@@ -1,5 +1,4 @@
 import * as githubUtils from "../src/github-utils";
-import { FILE_STATE } from "../src/github-utils";
 import { GitHub } from "@actions/github/lib/utils";
 import * as core from "@actions/core";
 import * as github from "@actions/github";
@@ -59,9 +58,9 @@ describe("github-utils", () => {
     it("should filter the files based on the provided states", async () => {
       const mockData = {
         data: [
-          { filename: "file1.ts", status: FILE_STATE.MODIFIED },
-          { filename: "file2.ts", status: FILE_STATE.ADDED },
-          { filename: "file3.ts", status: FILE_STATE.REMOVED },
+          { filename: "file1.ts", status: githubUtils.FILE_STATE.MODIFIED },
+          { filename: "file2.ts", status: githubUtils.FILE_STATE.ADDED },
+          { filename: "file3.ts", status: githubUtils.FILE_STATE.REMOVED },
         ],
       };
 
@@ -70,8 +69,8 @@ describe("github-utils", () => {
         .mockResolvedValue(mockData);
 
       const files = await githubUtils.getFilesFromPR(octokit, [
-        FILE_STATE.MODIFIED,
-        FILE_STATE.ADDED,
+        githubUtils.FILE_STATE.MODIFIED,
+        githubUtils.FILE_STATE.ADDED,
       ]);
 
       expect(files).toEqual(["file1.ts", "file2.ts"]);
@@ -84,8 +83,8 @@ describe("github-utils", () => {
       github.context.payload.pull_request.number = undefined;
 
       const files: string[] = await githubUtils.getFilesFromPR(octokit, [
-        FILE_STATE.MODIFIED,
-        FILE_STATE.ADDED,
+        githubUtils.FILE_STATE.MODIFIED,
+        githubUtils.FILE_STATE.ADDED,
       ]);
       expect(core.setFailed).toHaveBeenCalled();
     });

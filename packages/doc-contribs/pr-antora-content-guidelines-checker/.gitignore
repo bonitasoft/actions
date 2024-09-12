@@ -1,0 +1,3 @@
+lib/
+/reports/jest-junit.xml
+/node_modules/

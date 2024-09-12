@@ -5,7 +5,7 @@ import {
   Status,
   ValidationStep,
 } from "../validation";
-import { getFileContent } from "../github-utils";
+import { getFileContent } from "actions-common";
 import { GitHub } from "@actions/github/lib/utils";
 
 type AttributeError = {

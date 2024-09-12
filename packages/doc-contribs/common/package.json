@@ -1,0 +1,13 @@
+{
+  "name": "actions-common",
+  "version": "1.0.0",
+  "main": "src/index.ts",
+  "scripts": {
+    "build": "tsc && npm test",
+    "format": "prettier --write '**/*.ts'",
+    "format-check": "prettier --check '**/*.ts'",
+    "lint": "eslint src/**/*.ts",
+    "package:all": "npm run format && npm run build",
+    "test": "jest"
+  }
+}

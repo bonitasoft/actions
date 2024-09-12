@@ -4,7 +4,7 @@ import {
   Status,
   ValidationStep,
 } from "../validation";
-import { getFileContent } from "../github-utils";
+import { getFileContent } from "actions-common";
 import * as core from "@actions/core";
 import { GitHub } from "@actions/github/lib/utils";
 
