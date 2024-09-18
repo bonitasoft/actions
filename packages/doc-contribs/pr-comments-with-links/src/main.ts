@@ -50,10 +50,10 @@ export async function run(): Promise<void> {
       component: componentName,
       version: version,
     });
-    if (links.deleted === "" && links.updated === "") {
+    if (links.deleted.length === 0 && links.updated.length === 0) {
       core.info(`⚠️ No page will be updated or deleted`);
     } else {
-      const message = commentsWithLinks.buildMessage(links);
+      const message = commentsWithLinks.buildComment(links);
 
       const prNumber = github?.context?.payload?.pull_request?.number;
       if (prNumber) {

@@ -58,43 +58,44 @@ export class CommentsWithLinks {
    * Builds a message containing links to the updated and deleted pages.
    *
    * @param links - An object containing the updated and deleted links.
-   * @param links.updated - A string containing the links to the updated pages.
-   * @param links.deleted - A string containing the links to the deleted pages.
+   * @param links.updated - An array of strings containing the links to the updated pages.
+   * @param links.deleted - An array of strings containing the links to the deleted pages.
    * @returns A string representing the complete message to be published.
    *
    * @example
    * ```typescript
    * const links = {
-   *   updated: '- [ ] [page1](http://example.com/component/1.0/page1)',
-   *   deleted: '- [ ] [page2](http://example.com/component/1.0/page2)'
+   *   updated: ['- [ ] [page1](http://example.com/component/1.0/page1)'],
+   *   deleted: ['- [ ] [page2](http://example.com/component/1.0/page2)']
    * };
-   * const message = commentsWithLinks.buildMessage(links);
    * ```
    */
-  buildMessage(links: Links) {
-    const header = "## :memo: Check the pages that have been modified \n\n";
-    const preface ="In order to merge this pull request, you need to check your updates with the following url.\n\n";
+  buildComment(links: Links) {
+    const header = "## :memo: Contribution Summary \n\n";
+    const preface =
+      "In order to merge this pull request, you need to check your updates with the following url.\n\n";
 
-    let updatedSection = '';
+    let updatedSection = "";
     if (links.updated.length > 0) {
-      updatedSection = `### :mag: Updated pages 
-The following pages were updated, please ensure that the display is correct:
-${links.updated.join("\n")}
-`;
+      updatedSection = `### :link: Updated pages 
+> [!NOTE]
+> The following pages were updated, please ensure that the display is correct:
+${links?.updated.map((item) => `> ${item}`).join("\n")}`;
     }
 
     let deletedSection = "";
     if (links?.deleted.length > 0) {
       deletedSection = `
-### :warning: Check redirects
-At least one page has been renamed, moved or deleted in the Pull Request. Make sure to add [aliases](https://github.com/bonitasoft/bonita-documentation-site/blob/master/docs/content/CONTRIBUTING.adoc#use-alias-to-create-redirects) and verify that the following links redirect to the right location:          
-${links?.deleted.join("\n")}`;
+###  :mag: Check redirects
+> [!warning]
+> At least one page has been renamed, moved or deleted in the Pull Request. Make sure to add [**aliases**](https://github.com/bonitasoft/bonita-documentation-site/blob/master/docs/content/CONTRIBUTING.adoc#use-alias-to-create-redirects) and **verify that the following links redirect to the right location**:
+${links?.deleted.map((item) => `> ${item}`).join("\n")}`;
     }
 
     return this.template
-        .concat(header)
-        .concat(preface)
-        .concat(updatedSection)
-        .concat(deletedSection);
+      .concat(header)
+      .concat(preface)
+      .concat(updatedSection)
+      .concat(deletedSection);
   }
 }

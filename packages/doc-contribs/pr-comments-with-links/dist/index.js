@@ -29242,40 +29242,47 @@ class CommentsWithLinks {
                 preparedLinks.push(`- [ ] [${moduleName}${match[2]}](${url})`);
             }
         });
-        return preparedLinks.join("\n");
+        return preparedLinks;
     }
     /**
      * Builds a message containing links to the updated and deleted pages.
      *
      * @param links - An object containing the updated and deleted links.
-     * @param links.updated - A string containing the links to the updated pages.
-     * @param links.deleted - A string containing the links to the deleted pages.
+     * @param links.updated - An array of strings containing the links to the updated pages.
+     * @param links.deleted - An array of strings containing the links to the deleted pages.
      * @returns A string representing the complete message to be published.
      *
      * @example
      * ```typescript
      * const links = {
-     *   updated: '- [ ] [page1](http://example.com/component/1.0/page1)',
-     *   deleted: '- [ ] [page2](http://example.com/component/1.0/page2)'
+     *   updated: ['- [ ] [page1](http://example.com/component/1.0/page1)'],
+     *   deleted: ['- [ ] [page2](http://example.com/component/1.0/page2)']
      * };
-     * const message = commentsWithLinks.buildMessage(links);
      * ```
      */
-    buildMessage(links) {
-        const header = "## :memo: Check the pages that have been modified \n\n";
+    buildComment(links) {
+        const header = "## :memo: Contribution Summary \n\n";
         const preface = "In order to merge this pull request, you need to check your updates with the following url.\n\n";
-        const updatedLinks = `### :mag: Updated pages 
-The following pages were updated, please ensure that the display is correct:
-${links.updated}
-`;
-        let deletedLinks = "";
-        if ((links === null || links === void 0 ? void 0 : links.deleted) !== "") {
-            deletedLinks = `
-### :warning: Check redirects
-At least one page has been renamed, moved or deleted in the Pull Request. Make sure to add [aliases](https://github.com/bonitasoft/bonita-documentation-site/blob/master/docs/content/CONTRIBUTING.adoc#use-alias-to-create-redirects) and verify that the following links redirect to the right location:          
-${links === null || links === void 0 ? void 0 : links.deleted}`;
+        let updatedSection = "";
+        if (links.updated.length > 0) {
+            updatedSection = `### :link: Updated pages 
+> [!NOTE]
+> The following pages were updated, please ensure that the display is correct:
+${links === null || links === void 0 ? void 0 : links.updated.map((item) => `> ${item}`).join("\n")}`;
         }
-        return this.template + header + preface + updatedLinks + deletedLinks;
+        let deletedSection = "";
+        if ((links === null || links === void 0 ? void 0 : links.deleted.length) > 0) {
+            deletedSection = `
+###  :mag: Check redirects
+> [!warning]
+> At least one page has been renamed, moved or deleted in the Pull Request. Make sure to add [**aliases**](https://github.com/bonitasoft/bonita-documentation-site/blob/master/docs/content/CONTRIBUTING.adoc#use-alias-to-create-redirects) and **verify that the following links redirect to the right location**:
+${links === null || links === void 0 ? void 0 : links.deleted.map((item) => `> ${item}`).join("\n")}`;
+        }
+        return this.template
+            .concat(header)
+            .concat(preface)
+            .concat(updatedSection)
+            .concat(deletedSection);
     }
 }
 exports.CommentsWithLinks = CommentsWithLinks;
@@ -29363,11 +29370,11 @@ function run() {
                 component: componentName,
                 version: version,
             });
-            if (links.deleted === "" && links.updated === "") {
+            if (links.deleted.length === 0 && links.updated.length === 0) {
                 core.info(`⚠️ No page will be updated or deleted`);
             }
             else {
-                const message = commentsWithLinks.buildMessage(links);
+                const message = commentsWithLinks.buildComment(links);
                 const prNumber = (_c = (_b = (_a = github === null || github === void 0 ? void 0 : github.context) === null || _a === void 0 ? void 0 : _a.payload) === null || _b === void 0 ? void 0 : _b.pull_request) === null || _c === void 0 ? void 0 : _c.number;
                 if (prNumber) {
                     const comment = yield (0, actions_common_1.publishComment)(octokit, template, message, prNumber);

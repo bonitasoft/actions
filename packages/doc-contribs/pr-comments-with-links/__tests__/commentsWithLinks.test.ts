@@ -14,10 +14,10 @@ describe("CommentsWithLinks", () => {
         component: "component",
         version: "1.0",
       });
-      expect(result).toBe(
-        "- [ ] [page1](http://example.com/component/1.0/page1)\n" +
-          "- [ ] [module1/page2](http://example.com/component/1.0/module1/page2)"
-      );
+      expect(result).toStrictEqual([
+        "- [ ] [page1](http://example.com/component/1.0/page1)",
+        "- [ ] [module1/page2](http://example.com/component/1.0/module1/page2)",
+      ]);
     });
 
     it("returns empty string for files not matching regex", () => {
@@ -28,7 +28,7 @@ describe("CommentsWithLinks", () => {
         component: "component",
         version: "1.0",
       });
-      expect(result).toBe("");
+      expect(result).toStrictEqual([]);
     });
 
     it("handles files with mixed valid and invalid paths", () => {
@@ -39,9 +39,9 @@ describe("CommentsWithLinks", () => {
         component: "component",
         version: "1.0",
       });
-      expect(result).toBe(
-        "- [ ] [page1](http://example.com/component/1.0/page1)"
-      );
+      expect(result).toStrictEqual([
+        "- [ ] [page1](http://example.com/component/1.0/page1)",
+      ]);
     });
 
     it("handles files with ROOT module correctly", () => {
@@ -52,9 +52,9 @@ describe("CommentsWithLinks", () => {
         component: "component",
         version: "1.0",
       });
-      expect(result).toBe(
-        "- [ ] [page1](http://example.com/component/1.0/page1)"
-      );
+      expect(result).toStrictEqual([
+        "- [ ] [page1](http://example.com/component/1.0/page1)",
+      ]);
     });
 
     it("handles files with non-ROOT module correctly", () => {
@@ -65,9 +65,9 @@ describe("CommentsWithLinks", () => {
         component: "component",
         version: "1.0",
       });
-      expect(result).toBe(
-        "- [ ] [module1/page1](http://example.com/component/1.0/module1/page1)"
-      );
+      expect(result).toStrictEqual([
+        "- [ ] [module1/page1](http://example.com/component/1.0/module1/page1)",
+      ]);
     });
   });
 });
