@@ -1,6 +1,6 @@
 export interface Links {
-  updated: string;
-  deleted: string;
+  updated: string[];
+  deleted: string[];
 }
 
 /**
@@ -9,7 +9,7 @@ export interface Links {
  * and build a message containing the links to be published as a comment.
  */
 export class CommentsWithLinks {
-  private readonly template: any;
+  private readonly template: string;
 
   /**
    * Creates an instance of CommentsWithLinks.
@@ -51,7 +51,7 @@ export class CommentsWithLinks {
         preparedLinks.push(`- [ ] [${moduleName}${match[2]}](${url})`);
       }
     });
-    return preparedLinks.join("\n");
+    return preparedLinks;
   }
 
   /**
@@ -73,21 +73,28 @@ export class CommentsWithLinks {
    */
   buildMessage(links: Links) {
     const header = "## :memo: Check the pages that have been modified \n\n";
-    const preface =
-      "In order to merge this pull request, you need to check your updates with the following url.\n\n";
+    const preface ="In order to merge this pull request, you need to check your updates with the following url.\n\n";
 
-    const updatedLinks = `### :mag: Updated pages 
+    let updatedSection = '';
+    if (links.updated.length > 0) {
+      updatedSection = `### :mag: Updated pages 
 The following pages were updated, please ensure that the display is correct:
-${links.updated}
+${links.updated.join("\n")}
 `;
-    let deletedLinks = "";
-    if (links?.deleted !== "") {
-      deletedLinks = `
-### :warning: Check redirects
-At least one page has been renamed, moved or deleted in the Pull Request. Make sure to add [aliases](https://github.com/bonitasoft/bonita-documentation-site/blob/master/docs/content/CONTRIBUTING.adoc#use-alias-to-create-redirects) and verify that the following links redirect to the right location:          
-${links?.deleted}`;
     }
 
-    return this.template + header + preface + updatedLinks + deletedLinks;
+    let deletedSection = "";
+    if (links?.deleted.length > 0) {
+      deletedSection = `
+### :warning: Check redirects
+At least one page has been renamed, moved or deleted in the Pull Request. Make sure to add [aliases](https://github.com/bonitasoft/bonita-documentation-site/blob/master/docs/content/CONTRIBUTING.adoc#use-alias-to-create-redirects) and verify that the following links redirect to the right location:          
+${links?.deleted.join("\n")}`;
+    }
+
+    return this.template
+        .concat(header)
+        .concat(preface)
+        .concat(updatedSection)
+        .concat(deletedSection);
   }
 }
