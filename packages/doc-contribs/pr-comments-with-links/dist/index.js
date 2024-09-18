@@ -29278,13 +29278,11 @@ ${links === null || links === void 0 ? void 0 : links.updated.map((item) => `> $
 > At least one page has been renamed, moved or deleted in the Pull Request. Make sure to add [**aliases**](https://github.com/bonitasoft/bonita-documentation-site/blob/master/docs/content/CONTRIBUTING.adoc#use-alias-to-create-redirects) and **verify that the following links redirect to the right location**:
 ${links === null || links === void 0 ? void 0 : links.deleted.map((item) => `> ${item}`).join("\n")}`;
         }
-        const message = this.template
+        return this.template
             .concat(header)
             .concat(preface)
             .concat(updatedSection)
             .concat(deletedSection);
-        console.log(message);
-        return message;
     }
 }
 exports.CommentsWithLinks = CommentsWithLinks;
@@ -29353,9 +29351,11 @@ function run() {
             const addModifyFiles = modifiedFiles
                 .filter((file) => [actions_common_1.FILE_STATE.MODIFIED, actions_common_1.FILE_STATE.ADDED].includes(file.status))
                 .map((file) => file.filename);
+            core.debug(`Add/modify files: ${addModifyFiles.join(", ")}`);
             const deletedFiles = modifiedFiles
                 .filter((file) => file.status === actions_common_1.FILE_STATE.REMOVED)
                 .map((file) => file.filename);
+            core.debug(`Deleted files: ${deletedFiles.join(", ")}`);
             const links = {};
             // We only have a single version for preview (latest)
             // TODO: Handle "pre-release" (next)

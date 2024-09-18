@@ -30,9 +30,11 @@ export async function run(): Promise<void> {
         [FILE_STATE.MODIFIED, FILE_STATE.ADDED].includes(file.status)
       )
       .map((file) => file.filename);
+    core.debug(`Add/modify files: ${addModifyFiles.join(", ")}`);
     const deletedFiles = modifiedFiles
       .filter((file) => file.status === FILE_STATE.REMOVED)
       .map((file) => file.filename);
+    core.debug(`Deleted files: ${deletedFiles.join(", ")}`);
     const links: any = {};
 
     // We only have a single version for preview (latest)
