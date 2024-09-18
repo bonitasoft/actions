@@ -29278,11 +29278,13 @@ ${links === null || links === void 0 ? void 0 : links.updated.map((item) => `> $
 > At least one page has been renamed, moved or deleted in the Pull Request. Make sure to add [**aliases**](https://github.com/bonitasoft/bonita-documentation-site/blob/master/docs/content/CONTRIBUTING.adoc#use-alias-to-create-redirects) and **verify that the following links redirect to the right location**:
 ${links === null || links === void 0 ? void 0 : links.deleted.map((item) => `> ${item}`).join("\n")}`;
         }
-        return this.template
+        const message = this.template
             .concat(header)
             .concat(preface)
             .concat(updatedSection)
             .concat(deletedSection);
+        console.log(message);
+        return message;
     }
 }
 exports.CommentsWithLinks = CommentsWithLinks;

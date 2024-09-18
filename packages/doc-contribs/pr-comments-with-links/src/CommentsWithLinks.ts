@@ -92,10 +92,12 @@ ${links?.updated.map((item) => `> ${item}`).join("\n")}`;
 ${links?.deleted.map((item) => `> ${item}`).join("\n")}`;
     }
 
-    return this.template
+    const message = this.template
       .concat(header)
       .concat(preface)
       .concat(updatedSection)
       .concat(deletedSection);
+    console.log(message);
+    return message;
   }
 }
