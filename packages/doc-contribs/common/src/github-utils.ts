@@ -8,7 +8,6 @@ export enum FILE_STATE {
   MODIFIED = "modified",
 }
 
-
 /**
  * Publishes a comment on a pull request.
  * If a comment with the same template already exists, it updates the comment.
@@ -66,10 +65,10 @@ export async function getFileContent(
   return Buffer.from(data.content, "base64").toString();
 }
 
-export type FileInfo= {
+export type FileInfo = {
   filename: string;
   status: FILE_STATE;
-}
+};
 export async function getFilesFromPR(
   octokit: InstanceType<typeof GitHub>,
   states: Array<FILE_STATE> = Object.values(FILE_STATE)
@@ -92,7 +91,7 @@ export async function getFilesFromPR(
 
   const prFiles = data
     .filter((file: any) => states.includes(file.status))
-    .map((file: any) => ({ filename: file.filename, status: file.status }))
+    .map((file: any) => ({ filename: file.filename, status: file.status }));
 
   core.debug(
     `Analyze ${prFiles.length} files in PR #${prNumber}: \n ${prFiles.join(

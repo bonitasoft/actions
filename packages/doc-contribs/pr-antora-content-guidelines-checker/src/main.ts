@@ -3,7 +3,8 @@ import * as github from "@actions/github";
 import { ActionResult, Status, ValidationStep } from "./validation";
 import {
   deleteComment,
-  FILE_STATE, FileInfo,
+  FILE_STATE,
+  FileInfo,
   getFilesFromPR,
   isCommentExist,
   publishComment,
@@ -40,7 +41,7 @@ async function run(): Promise<void> {
     if (core.getInput("attributes-to-check") !== "") {
       steps.push(
         new AttributesCheckingStep(
-            simpleModifiedFiles,
+          simpleModifiedFiles,
           filesToCheckInput,
           attributesToCheckInput
         )
@@ -49,7 +50,7 @@ async function run(): Promise<void> {
     if (core.getInput("forbidden-pattern-to-check") !== "") {
       steps.push(
         new ForbiddenPatternStep(
-            simpleModifiedFiles,
+          simpleModifiedFiles,
           filesToCheckInput,
           forbiddenPatternToCheckInput
         )

@@ -1,9 +1,8 @@
 import * as githubUtils from "../src/github-utils";
-import {FileInfo} from "../src/github-utils";
+import { FileInfo } from "../src/github-utils";
 import { GitHub } from "@actions/github/lib/utils";
 import * as core from "@actions/core";
 import * as github from "@actions/github";
-
 
 jest.mock("@actions/github", () => ({
   context: {
@@ -53,9 +52,11 @@ describe("github-utils", () => {
 
       const files: FileInfo[] = await githubUtils.getFilesFromPR(octokit);
 
-      expect(files).toEqual([ { filename: "file1.ts", status: "modified" },
+      expect(files).toEqual([
+        { filename: "file1.ts", status: "modified" },
         { filename: "file2.ts", status: "added" },
-        { filename: "file3.ts", status: "removed" }]);
+        { filename: "file3.ts", status: "removed" },
+      ]);
       expect(octokit.rest.pulls.listFiles).toHaveBeenCalled();
     });
 
@@ -77,8 +78,10 @@ describe("github-utils", () => {
         githubUtils.FILE_STATE.ADDED,
       ]);
 
-      expect(files).toEqual([{ filename: "file1.ts", status: githubUtils.FILE_STATE.MODIFIED },
-        { filename: "file2.ts", status: githubUtils.FILE_STATE.ADDED },]);
+      expect(files).toEqual([
+        { filename: "file1.ts", status: githubUtils.FILE_STATE.MODIFIED },
+        { filename: "file2.ts", status: githubUtils.FILE_STATE.ADDED },
+      ]);
       expect(octokit.rest.pulls.listFiles).toHaveBeenCalled();
     });
 
