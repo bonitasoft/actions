@@ -1,4 +1,4 @@
-import { CommentsWithLinks } from '../src//utils';
+import { CommentsWithLinks } from '../src/CommentsWithLinks';
 
 describe('CommentsWithLinks', () => {
     describe('prepareLinks', () => {
