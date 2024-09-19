@@ -73,7 +73,7 @@ export class CommentsWithLinks {
   buildComment(links: Links) {
     const header = "## :memo: Contribution Summary \n\n";
     const preface =
-      "In order to merge this pull request, you need to check your updates with the following url.\n\n";
+      "To merge this Pull Request, you need to check your updates with the following URL.\n\n";
 
     let updatedSection = "";
     if (links.updated.length > 0) {
@@ -88,7 +88,7 @@ ${links?.updated.map((item) => `> ${item}`).join("\n")}`;
       deletedSection = `
 ###  :mag: Check redirects
 > [!warning]
-> At least one page has been renamed, moved or deleted in the Pull Request. Make sure to add [**aliases**](https://github.com/bonitasoft/bonita-documentation-site/blob/master/docs/content/CONTRIBUTING.adoc#use-alias-to-create-redirects) and **verify that the following links redirect to the right location**:
+> At least one page has been renamed, moved or deleted in the Pull Request. Make sure you add [**aliases**](https://github.com/bonitasoft/bonita-documentation-site/blob/master/docs/content/CONTRIBUTING.adoc#use-alias-to-create-redirects) and **check that the following links redirect to the right place**:
 ${links?.deleted.map((item) => `> ${item}`).join("\n")}`;
     }
 
