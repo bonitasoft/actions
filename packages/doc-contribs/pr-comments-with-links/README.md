@@ -15,7 +15,7 @@ See [action.yml](./action.yml) for the detailed list of inputs and outputs.
 Set the `pull-requests` permission to `write` to allow the action to post comments on the PR.
 Set the `github-token` if you want to use a personal access token, by default the value is `${{ secrets.GITHUB_TOKEN }}`
 
-```
+```yaml
 name: Comment PR with links
 
 on: [pull_request]
