@@ -8,7 +8,26 @@ export enum FILE_STATE {
   MODIFIED = "modified",
 }
 
-// Publish a comment on the PR with the results
+/**
+ * Publishes a comment on a pull request.
+ * If a comment with the same template already exists, it updates the comment.
+ * Otherwise, it creates a new comment.
+ *
+ * @param octokit - The GitHub API client instance.
+ * @param template - The template string to identify the comment.
+ * @param commentBody - The body of the comment to be published.
+ * @param prNumber - The pull request number where the comment will be published.
+ * @returns A promise that resolves to the response of the create or update comment API call.
+ *
+ * @example
+ * ```typescript
+ * const octokit = new GitHub({ auth: 'token' });
+ * const template = '<!-- previewLinksCheck-->';
+ * const commentBody = 'This is a comment body';
+ * const prNumber = 123;
+ * await publishComment(octokit, template, commentBody, prNumber);
+ * ```
+ */
 export async function publishComment(
   octokit: InstanceType<typeof GitHub>,
   template: string,
@@ -46,10 +65,14 @@ export async function getFileContent(
   return Buffer.from(data.content, "base64").toString();
 }
 
+export type FileInfo = {
+  filename: string;
+  status: FILE_STATE;
+};
 export async function getFilesFromPR(
   octokit: InstanceType<typeof GitHub>,
   states: Array<FILE_STATE> = Object.values(FILE_STATE)
-): Promise<string[]> {
+): Promise<FileInfo[]> {
   const prNumber = github?.context?.payload?.pull_request?.number;
   if (prNumber === undefined) {
     core.setFailed(
@@ -68,7 +91,7 @@ export async function getFilesFromPR(
 
   const prFiles = data
     .filter((file: any) => states.includes(file.status))
-    .map((file: any) => file.filename);
+    .map((file: any) => ({ filename: file.filename, status: file.status }));
 
   core.debug(
     `Analyze ${prFiles.length} files in PR #${prNumber}: \n ${prFiles.join(
@@ -100,7 +123,7 @@ export async function isCommentExist({ octokit, template, prNumber }) {
   };
 }
 export async function createComment({ octokit, body, prNumber }) {
-  return await octokit.rest.issues.createComment({
+  return octokit.rest.issues.createComment({
     issue_number: prNumber,
     owner: github.context.repo.owner,
     repo: github.context.repo.repo,

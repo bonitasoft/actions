@@ -4,6 +4,7 @@ import { ActionResult, Status, ValidationStep } from "./validation";
 import {
   deleteComment,
   FILE_STATE,
+  FileInfo,
   getFilesFromPR,
   isCommentExist,
   publishComment,
@@ -18,12 +19,15 @@ async function run(): Promise<void> {
   try {
     const token = core.getInput("github-token");
     const octokit: InstanceType<typeof GitHub> = github.getOctokit(token);
+
     let actionResult: ActionResult[] = [];
     // The checks are done on the content of the files, so they must not be applied to deleted files whose content is no longer available
-    const modifiedFiles: string[] = await getFilesFromPR(octokit, [
+    const modifiedFiles: FileInfo[] = await getFilesFromPR(octokit, [
       FILE_STATE.MODIFIED,
       FILE_STATE.ADDED,
     ]);
+
+    const simpleModifiedFiles = modifiedFiles.map((file) => file.filename);
 
     const filesToCheckInput = core.getInput("files-to-check").split(",");
     const attributesToCheckInput = core
@@ -37,7 +41,7 @@ async function run(): Promise<void> {
     if (core.getInput("attributes-to-check") !== "") {
       steps.push(
         new AttributesCheckingStep(
-          modifiedFiles,
+          simpleModifiedFiles,
           filesToCheckInput,
           attributesToCheckInput
         )
@@ -46,7 +50,7 @@ async function run(): Promise<void> {
     if (core.getInput("forbidden-pattern-to-check") !== "") {
       steps.push(
         new ForbiddenPatternStep(
-          modifiedFiles,
+          simpleModifiedFiles,
           filesToCheckInput,
           forbiddenPatternToCheckInput
         )
@@ -60,7 +64,7 @@ async function run(): Promise<void> {
 
     for (const step of steps) {
       core.debug(`------- ${step.name} -------`);
-      let stepResult = await step.validate(octokit, modifiedFiles);
+      let stepResult = await step.validate(octokit, simpleModifiedFiles);
       core.debug(`Validation status: ${stepResult?.status}`);
       actionResult.push(stepResult);
     }

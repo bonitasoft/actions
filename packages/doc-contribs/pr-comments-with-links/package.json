@@ -1,0 +1,36 @@
+{
+  "name": "pr-comments-with-links",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Action to publish a comment on a PR with a link to the updated files",
+  "main": "lib/main.js",
+  "scripts": {
+    "build": "tsc && npm test",
+    "format": "prettier --write '**/*.ts'",
+    "format-check": "prettier --check '**/*.ts'",
+    "lint": "eslint src/**/*.ts",
+    "package": "ncc build --source-map --license licenses.txt",
+    "package:all": "npm run format && npm run build && npm run package",
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bonitasoft/actions.git"
+  },
+  "keywords": [
+    "github",
+    "actions",
+    "antora",
+    "contribution",
+    "pr-comments-with-links"
+  ],
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/bonitasoft/actions/issues"
+  },
+  "homepage": "https://github.com/bonitasoft/actions/tree/main/packages/doc-contribs/pr-antora-content-guidelines-checker#readme",
+  "devDependencies": {
+    "@vercel/ncc": "^0.36.1"
+  }
+}

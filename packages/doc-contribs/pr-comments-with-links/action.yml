@@ -1,0 +1,19 @@
+name: "Comments PR with useful links"
+description: "Add a comment to help reviewer on a PR"
+
+inputs:
+  github-token:
+    description: 'The token used to create Pull Request comment when the contribution update or remove pages'
+    required: false
+    default: ${{ github.token }}
+  site-url:
+    description: "The url of preview to check the PR update"
+    required: true
+  component-name:
+    description: "The name of the component to build."
+    required: false
+    default: "bonita"
+
+runs:
+  using: 'node20'
+  main: 'dist/index.js'
