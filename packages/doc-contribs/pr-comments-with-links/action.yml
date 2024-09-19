@@ -3,7 +3,7 @@ description: "Add a comment to help reviewer on a PR"
 
 inputs:
   github-token:
-    description: 'The token used to create Pull Request comment when the contribution does not follow requirements'
+    description: 'The token used to create Pull Request comment when the contribution update or remove pages'
     required: false
     default: ${{ github.token }}
   site-url:

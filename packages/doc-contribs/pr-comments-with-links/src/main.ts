@@ -53,7 +53,7 @@ export async function run(): Promise<void> {
       version: version,
     });
     if (links.deleted.length === 0 && links.updated.length === 0) {
-      core.info(`⚠️ No page will be updated or deleted`);
+      core.info(`⚠️ No updated or deleted pages were detected`);
     } else {
       const message = commentsWithLinks.buildComment(links);
 

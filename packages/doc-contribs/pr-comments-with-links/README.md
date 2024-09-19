@@ -1,7 +1,10 @@
 # PR Comments With Links
 
-This action checks the diff in a PR, and fails if one or more of the set criteria isn't met.
-If action failed, a comment with details will be written in the Pull Request
+This action publish a comment on the pull request with the link to the added/updated/removed page to the preview.
+
+## Which files are checked
+
+The action will check all `.adoc` files includes in a subfolder `pages` of the `modules` folder.
 
 ## Using this action
 
@@ -13,36 +16,24 @@ Set the `pull-requests` permission to `write` to allow the action to post commen
 Set the `github-token` if you want to use a personal access token, by default the value is `${{ secrets.GITHUB_TOKEN }}`
 
 ```
-name: Check PR content
+name: Comment PR with links
 
 on: [pull_request]
 
 jobs:
-  check_contribution:
+  comment_pr_with_links:
     runs-on: ubuntu-22.04
     permissions:
-      pull-requests: write # post comments when the Pull Request title doesn't match the "Guidelines" rules
-    steps:
-      - name: Check contribution guidelines
-        uses: bonitasoft/actions/packages/pr-antora-content-guidelines-checker@v1.0
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }} // optional
-          attributes-to-check: ':description:'
-          files-to-check: 'adoc'
-          forbidden-pattern-to-check: 'https://documentation.bonitasoft.com, link:'
+      pull-requests: write
+    steps:      
+        - name: Comments PR with links
+           uses: bonitasoft/actions/packages/doc-contribs/pr-comments-with-links@vX
+           with:
+                site-url: https://example.com
+                component-name: bonita
 ```
 
 An example is also provided in [bonita-labs-doc repository](https://github.com/bonitasoft/bonita-labs-doc/blob/master/.github/workflows/check-contribution.yml).
-
-## Steps
-
-### Attributes Checking
-
-For each file updated in the pull request, check if the files contains the value of `forbidden-pattern-to-check` properties and failed if at least one attribute is missing
-
-### Forbidden Pattern
-
-For each file updated in the pull request, check if the files contains the value of `attributes-to-check` properties and failed if attribute is missing, if the value is empty or if the length of the value is not enough.
 
 ## Development
 

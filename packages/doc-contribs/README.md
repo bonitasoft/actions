@@ -6,6 +6,7 @@ It is composed of two packages:
 
 - [common](common): contains the common code used by the other packages.
 - [pr-antora-content-guidelines-checker](pr-antora-content-guidelines-checker): contains the action that checks if the updated files follow the recommendation from the Bonita documentation team.
+- [pr-comments-with-links](pr-comments-with-links): contains the action that generate a comment with the link for the added/updated/removed page to the preview. 
 
 ## How-to develop
 
