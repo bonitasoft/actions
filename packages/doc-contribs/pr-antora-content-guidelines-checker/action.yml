@@ -17,6 +17,10 @@ inputs:
     description: 'Comma-separated list of forbidden pattern to check in the modified files. (ex: http://documentation.mydomain,link:), keep empty to skip this check.'
     default: ''
     required: false
+  steps-to-skip:
+    description: 'Comma-separated list of steps to skip, by default all steps are executed.'
+    default: ''
+    required: false
 
 runs:
   using: 'node20'

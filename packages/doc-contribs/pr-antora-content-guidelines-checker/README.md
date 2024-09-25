@@ -7,6 +7,12 @@ If action failed, a comment with details will be written in the Pull Request
 
 See [action.yml](./action.yml) for the detailed list of inputs and outputs.
 
+Note: `steps-to-skip` is optional, you can put a list (comma-separated)  of step to skip, here are the available steps:
+```
+attributes-checking
+forbidden-pattern
+```
+
 ### Permissions
 
 Set the `pull-requests` permission to `write` to allow the action to post comments on the PR.
@@ -30,6 +36,7 @@ jobs:
           attributes-to-check: ':description:'
           files-to-check: 'adoc'
           forbidden-pattern-to-check: 'https://documentation.bonitasoft.com, link:'
+          steps-to-skip: ''
 ```
 
 An example is also provided in [bonita-labs-doc repository](https://github.com/bonitasoft/bonita-labs-doc/blob/master/.github/workflows/check-contribution.yml).

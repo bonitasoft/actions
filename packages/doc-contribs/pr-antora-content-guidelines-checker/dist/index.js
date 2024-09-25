@@ -29266,11 +29266,17 @@ function run() {
             const forbiddenPatternToCheckInput = core
                 .getInput("forbidden-pattern-to-check")
                 .split(",");
+            const stepsToSkip = core
+                .getInput("steps-to-skip")
+                .split(",")
+                .map((item) => item.trim());
             let steps = [];
-            if (core.getInput("attributes-to-check") !== "") {
+            if (!stepsToSkip.includes(validation_1.AvailableStep.AttributeChecking) &&
+                core.getInput("attributes-to-check") !== "") {
                 steps.push(new AttributesCheckingStep_1.AttributesCheckingStep(simpleModifiedFiles, filesToCheckInput, attributesToCheckInput));
             }
-            if (core.getInput("forbidden-pattern-to-check") !== "") {
+            if (!stepsToSkip.includes(validation_1.AvailableStep.ForbiddenPattern) &&
+                core.getInput("forbidden-pattern-to-check") !== "") {
                 steps.push(new ForbiddenPatternStep_1.ForbiddenPatternStep(simpleModifiedFiles, filesToCheckInput, forbiddenPatternToCheckInput));
             }
             core.startGroup("Input parameters:");
@@ -29657,7 +29663,7 @@ exports.ForbiddenPatternStep = ForbiddenPatternStep;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.Status = exports.ValidationStep = void 0;
+exports.AvailableStep = exports.Status = exports.ValidationStep = void 0;
 /**
  * An abstract class that defines the structure for validation steps.
  *
@@ -29692,6 +29698,11 @@ var Status;
     Status["ERROR"] = "error";
     Status["SUCCESS"] = "success";
 })(Status || (exports.Status = Status = {}));
+var AvailableStep;
+(function (AvailableStep) {
+    AvailableStep["AttributeChecking"] = "attributes-checking";
+    AvailableStep["ForbiddenPattern"] = "forbidden-pattern";
+})(AvailableStep || (exports.AvailableStep = AvailableStep = {}));
 
 
 /***/ }),

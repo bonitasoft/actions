@@ -66,3 +66,8 @@ export interface ActionResult {
   status: string;
   results: ValidationResult[];
 }
+
+export enum AvailableStep {
+  AttributeChecking = "attributes-checking",
+  ForbiddenPattern = "forbidden-pattern",
+}
