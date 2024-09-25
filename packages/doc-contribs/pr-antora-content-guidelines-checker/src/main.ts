@@ -1,6 +1,11 @@
 import * as core from "@actions/core";
 import * as github from "@actions/github";
-import { ActionResult, Status, ValidationStep } from "./validation";
+import {
+  ActionResult,
+  AvailableSteps,
+  Status,
+  ValidationStep,
+} from "./validation";
 import {
   deleteComment,
   FILE_STATE,
@@ -36,9 +41,18 @@ async function run(): Promise<void> {
     const forbiddenPatternToCheckInput = core
       .getInput("forbidden-pattern-to-check")
       .split(",");
+
+    const stepToSkip: string[] = core
+      .getInput("step-to-skip")
+      .split(",")
+      .map((item) => item.trim());
+
     let steps: Array<ValidationStep> = [];
 
-    if (core.getInput("attributes-to-check") !== "") {
+    if (
+      stepToSkip.includes(AvailableSteps.ATTRIBUTES_CHECKING_STEP) &&
+      core.getInput("attributes-to-check") !== ""
+    ) {
       steps.push(
         new AttributesCheckingStep(
           simpleModifiedFiles,
@@ -47,7 +61,10 @@ async function run(): Promise<void> {
         )
       );
     }
-    if (core.getInput("forbidden-pattern-to-check") !== "") {
+    if (
+      stepToSkip.includes(AvailableSteps.FORBIDDEN_PATTERN_STEP) &&
+      core.getInput("forbidden-pattern-to-check") !== ""
+    ) {
       steps.push(
         new ForbiddenPatternStep(
           simpleModifiedFiles,
