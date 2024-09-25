@@ -2,7 +2,7 @@ import * as core from "@actions/core";
 import * as github from "@actions/github";
 import {
   ActionResult,
-  AvailableSteps,
+  AvailableStep,
   Status,
   ValidationStep,
 } from "./validation";
@@ -42,15 +42,15 @@ async function run(): Promise<void> {
       .getInput("forbidden-pattern-to-check")
       .split(",");
 
-    const stepToSkip: string[] = core
-      .getInput("step-to-skip")
+    const stepsToSkip: string[] = core
+      .getInput("steps-to-skip")
       .split(",")
       .map((item) => item.trim());
 
     let steps: Array<ValidationStep> = [];
 
     if (
-      stepToSkip.includes(AvailableSteps.ATTRIBUTES_CHECKING_STEP) &&
+      !stepsToSkip.includes(AvailableStep.AttributeChecking) &&
       core.getInput("attributes-to-check") !== ""
     ) {
       steps.push(
@@ -62,7 +62,7 @@ async function run(): Promise<void> {
       );
     }
     if (
-      stepToSkip.includes(AvailableSteps.FORBIDDEN_PATTERN_STEP) &&
+      !stepsToSkip.includes(AvailableStep.ForbiddenPattern) &&
       core.getInput("forbidden-pattern-to-check") !== ""
     ) {
       steps.push(

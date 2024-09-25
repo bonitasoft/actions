@@ -17,8 +17,8 @@ inputs:
     description: 'Comma-separated list of forbidden pattern to check in the modified files. (ex: http://documentation.mydomain,link:), keep empty to skip this check.'
     default: ''
     required: false
-  step-to-skip:
-    description: 'Array of step to skip (comma-separated), by default all steps are executed.'
+  steps-to-skip:
+    description: 'Comma-separated list of steps to skip, by default all steps are executed.'
     default: ''
     required: false
 
