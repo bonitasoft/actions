@@ -11,6 +11,7 @@ Note: `steps-to-skip` is optional, you can put a list (comma-separated)  of step
 ```
 attributes-checking
 forbidden-pattern
+page-filename
 ```
 
 ### Permissions

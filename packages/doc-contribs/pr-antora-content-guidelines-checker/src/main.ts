@@ -17,6 +17,7 @@ import {
 import { AttributesCheckingStep } from "./steps/AttributesCheckingStep";
 import { ForbiddenPatternStep } from "./steps/ForbiddenPatternStep";
 import { GitHub } from "@actions/github/lib/utils";
+import {PageFilenameStep} from "./steps/PageFilenameStep";
 
 const template = "<!-- previewCommentContributionChecker -->\n";
 
@@ -73,10 +74,21 @@ async function run(): Promise<void> {
         )
       );
     }
+
+    if (
+        !stepsToSkip.includes(AvailableStep.PageFilename)) {
+      steps.push(
+          new PageFilenameStep(
+              simpleModifiedFiles,
+              filesToCheckInput
+          )
+      );
+    }
     core.startGroup("Input parameters:");
     core.info(`* files-to-check: ${filesToCheckInput.join(", ")}`);
     core.info(`* attributes-to-check: ${attributesToCheckInput}`);
     core.info(`* forbidden-pattern-to-check: ${forbiddenPatternToCheckInput}`);
+    core.info(`* steps-to-skip: ${stepsToSkip}`);
     core.endGroup();
 
     for (const step of steps) {
