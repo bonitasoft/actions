@@ -14,10 +14,7 @@ export class PageFilenameStep extends ValidationStep {
   stepResult: ActionResult | null;
   files: string[];
 
-  constructor(
-    files: string[],
-    extensionsToCheck: string[],
-  ) {
+  constructor(files: string[], extensionsToCheck: string[]) {
     super();
     this.name = "Page filename";
     this.description =
@@ -45,15 +42,15 @@ export class PageFilenameStep extends ValidationStep {
 
   toKebabCase(str: string) {
     // Split the file name and extension
-    const parts = str.split('.');
-    const fileName = parts.slice(0, -1).join('.'); // Handle multiple dots before the extension
+    const parts = str.split(".");
+    const fileName = parts.slice(0, -1).join("."); // Handle multiple dots before the extension
     const extension = parts.slice(-1)[0];
 
     // Convert the file name part to kebab-case
     const kebabFileName = fileName
-        .replace(/([a-z])([A-Z])/g, '$1-$2') // Add dash between camelCase letters
-        .replace(/_/g, '-') // Replace underscores with dashes
-        .toLowerCase(); // Convert to lowercase
+      .replace(/([a-z])([A-Z])/g, "$1-$2") // Add dash between camelCase letters
+      .replace(/_/g, "-") // Replace underscores with dashes
+      .toLowerCase(); // Convert to lowercase
 
     // Join the kebab-case file name with the extension
     return `${kebabFileName}.${extension}`;
@@ -65,10 +62,10 @@ export class PageFilenameStep extends ValidationStep {
     const kebabCaseRegex = /^[a-z0-9]+(-[a-z0-9]+)*(?=\.[a-z]+$)/;
 
     this.files.forEach((filePath) => {
-      const fileName = filePath.split('/').pop();
+      const fileName = filePath.split("/").pop();
       if (fileName && !kebabCaseRegex.test(fileName)) {
         hasErrors = true;
-        results.push({ file: fileName, details : this.toKebabCase(fileName)});
+        results.push({ file: fileName, details: this.toKebabCase(fileName) });
       }
     });
     this.stepResult = {

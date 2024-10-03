@@ -17,7 +17,7 @@ import {
 import { AttributesCheckingStep } from "./steps/AttributesCheckingStep";
 import { ForbiddenPatternStep } from "./steps/ForbiddenPatternStep";
 import { GitHub } from "@actions/github/lib/utils";
-import {PageFilenameStep} from "./steps/PageFilenameStep";
+import { PageFilenameStep } from "./steps/PageFilenameStep";
 
 const template = "<!-- previewCommentContributionChecker -->\n";
 
@@ -75,14 +75,8 @@ async function run(): Promise<void> {
       );
     }
 
-    if (
-        !stepsToSkip.includes(AvailableStep.PageFilename)) {
-      steps.push(
-          new PageFilenameStep(
-              simpleModifiedFiles,
-              filesToCheckInput
-          )
-      );
+    if (!stepsToSkip.includes(AvailableStep.PageFilename)) {
+      steps.push(new PageFilenameStep(simpleModifiedFiles, filesToCheckInput));
     }
     core.startGroup("Input parameters:");
     core.info(`* files-to-check: ${filesToCheckInput.join(", ")}`);
@@ -124,10 +118,11 @@ async function run(): Promise<void> {
         );
         core.info(`📝 Publish comment for PR #${prNumber}`);
         core.info(`💡 See ${comment.data.html_url} for more details`);
+
+        core.setFailed(
+          `❌ This PR did not meet all the guidelines, see PR comments for details. (${comment.data.html_url})`
+        );
       }
-      core.setFailed(
-        `❌ This PR did not meet all the guidelines, see PR comments for details. (${comment.data.html_url})`
-      );
     } else {
       const { exists, id } = await isCommentExist({
         octokit,

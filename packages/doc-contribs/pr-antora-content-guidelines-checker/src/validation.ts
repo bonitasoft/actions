@@ -70,5 +70,5 @@ export interface ActionResult {
 export enum AvailableStep {
   AttributeChecking = "attributes-checking",
   ForbiddenPattern = "forbidden-pattern",
-  PageFilename="page-filename"
+  PageFilename = "page-filename",
 }

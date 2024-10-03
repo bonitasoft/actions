@@ -29,7 +29,12 @@ describe("FilenameStep", () => {
 
   it("should return error status when forbidden patterns are found", async () => {
     const mockOctokit = {} as InstanceType<typeof GitHub>;
-    const files = ["modules/test/pages/testAreNotOk.adoc", "modules/test/pages/test-are-ok.adoc", "modules/test/pages/name_are_bad.adoc","modules/test/pages/otherBad_filename.adoc"];
+    const files = [
+      "modules/test/pages/testAreNotOk.adoc",
+      "modules/test/pages/test-are-ok.adoc",
+      "modules/test/pages/name_are_bad.adoc",
+      "modules/test/pages/otherBad_filename.adoc",
+    ];
     const extensionsToCheck = ["adoc"];
 
     const pageFilenameStep = new PageFilenameStep(files, extensionsToCheck);
@@ -39,13 +44,15 @@ describe("FilenameStep", () => {
     expect(result).toEqual({
       status: Status.ERROR,
       results: [
-        { file: "testAreNotOk.adoc",details: "test-are-not-ok.adoc"},
-        {file: "name_are_bad.adoc", details: "name-are-bad.adoc"},
-        {file: "otherBad_filename.adoc", details: "other-bad-filename.adoc"},
+        { file: "testAreNotOk.adoc", details: "test-are-not-ok.adoc" },
+        { file: "name_are_bad.adoc", details: "name-are-bad.adoc" },
+        { file: "otherBad_filename.adoc", details: "other-bad-filename.adoc" },
       ],
     });
-    const comment = pageFilenameStep.formatCommentBody()
+    const comment = pageFilenameStep.formatCommentBody();
     expect(comment).toContain(`🥙 File name`);
-    expect(comment).toContain(`Some filenames are not following the kebab-case convention. To ensure consistency and maintain best practices, please rename the following files accordingly:`);
+    expect(comment).toContain(
+      `Some filenames are not following the kebab-case convention. To ensure consistency and maintain best practices, please rename the following files accordingly:`
+    );
   });
 });
