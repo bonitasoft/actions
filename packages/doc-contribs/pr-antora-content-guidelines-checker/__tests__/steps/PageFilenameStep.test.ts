@@ -50,7 +50,7 @@ describe("FilenameStep", () => {
       ],
     });
     const comment = pageFilenameStep.formatCommentBody();
-    expect(comment).toContain(`🥙 File name`);
+    expect(comment).toContain(`🥙 ${pageFilenameStep.name}`);
     expect(comment).toContain(
       `Some filenames are not following the kebab-case convention. To ensure consistency and maintain best practices, please rename the following files accordingly:`
     );
