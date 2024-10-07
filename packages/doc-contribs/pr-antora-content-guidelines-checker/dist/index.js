@@ -29720,9 +29720,11 @@ class PageFilenameStep extends validation_1.ValidationStep {
         let commentBody = `## 🥙 ${this.name} \n`;
         commentBody += `${this.description}\n`;
         this.stepResult.results.forEach((actionResult) => {
-            commentBody += `- [ ] Rename **${actionResult.file}** to **${actionResult.file}**\n`;
+            commentBody += `- [ ] Rename **${actionResult.file}** to **${actionResult.details}**\n`;
         });
-        commentBody += `\n \n Additionally, don't forget to add the \`:page-aliases:\` attribute after renaming the files to avoid broken links or references.`;
+        commentBody += `
+> [!warning]
+> Additionally, don't forget to add the \`:page-aliases:\` attribute after renaming the **existing files** to avoid broken links or references. `;
         return commentBody;
     }
     toKebabCase(str) {
