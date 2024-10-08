@@ -29724,7 +29724,7 @@ class PageFilenameStep extends validation_1.ValidationStep {
         });
         commentBody += `
 > [!warning]
-> Additionally, don't forget to add the \`:page-aliases:\` attribute after renaming the **existing files** to avoid broken links or references. `;
+> Remember to add the \`:page-aliases:\` attribute after renaming any **existing files** to prevent broken links or references.`;
         return commentBody;
     }
     toKebabCase(str) {
