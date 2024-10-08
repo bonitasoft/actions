@@ -29245,6 +29245,7 @@ const validation_1 = __nccwpck_require__(7452);
 const actions_common_1 = __nccwpck_require__(6458);
 const AttributesCheckingStep_1 = __nccwpck_require__(5769);
 const ForbiddenPatternStep_1 = __nccwpck_require__(9384);
+const PageFilenameStep_1 = __nccwpck_require__(8954);
 const template = "<!-- previewCommentContributionChecker -->\n";
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -29279,10 +29280,14 @@ function run() {
                 core.getInput("forbidden-pattern-to-check") !== "") {
                 steps.push(new ForbiddenPatternStep_1.ForbiddenPatternStep(simpleModifiedFiles, filesToCheckInput, forbiddenPatternToCheckInput));
             }
+            if (!stepsToSkip.includes(validation_1.AvailableStep.PageFilename)) {
+                steps.push(new PageFilenameStep_1.PageFilenameStep(simpleModifiedFiles, filesToCheckInput));
+            }
             core.startGroup("Input parameters:");
             core.info(`* files-to-check: ${filesToCheckInput.join(", ")}`);
             core.info(`* attributes-to-check: ${attributesToCheckInput}`);
             core.info(`* forbidden-pattern-to-check: ${forbiddenPatternToCheckInput}`);
+            core.info(`* steps-to-skip: ${stepsToSkip}`);
             core.endGroup();
             for (const step of steps) {
                 core.debug(`------- ${step.name} -------`);
@@ -29308,8 +29313,8 @@ function run() {
                     comment = yield (0, actions_common_1.publishComment)(octokit, template, commentBody, prNumber);
                     core.info(`📝 Publish comment for PR #${prNumber}`);
                     core.info(`💡 See ${comment.data.html_url} for more details`);
+                    core.setFailed(`❌ This PR did not meet all the guidelines, see PR comments for details. (${comment.data.html_url})`);
                 }
-                core.setFailed(`❌ This PR did not meet all the guidelines, see PR comments for details. (${comment.data.html_url})`);
             }
             else {
                 const { exists, id } = yield (0, actions_common_1.isCommentExist)({
@@ -29657,6 +29662,119 @@ exports.ForbiddenPatternStep = ForbiddenPatternStep;
 
 /***/ }),
 
+/***/ 8954:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.PageFilenameStep = void 0;
+const core = __importStar(__nccwpck_require__(5316));
+const validation_1 = __nccwpck_require__(7452);
+class PageFilenameStep extends validation_1.ValidationStep {
+    constructor(files, extensionsToCheck) {
+        super();
+        this.name = "Page filename";
+        this.description =
+            "Some filenames are not following the kebab-case convention. To ensure consistency and maintain best practices, please rename the following files accordingly:";
+        this.stepResult = null;
+        this.files = this.filterFiles(files, extensionsToCheck);
+    }
+    formatCommentBody() {
+        if (!this.stepResult || this.stepResult.status === validation_1.Status.SUCCESS) {
+            core.debug(`No section for ${this.name} step will be write.`);
+            return "";
+        }
+        let commentBody = `## 🥙 ${this.name} \n`;
+        commentBody += `${this.description}\n`;
+        this.stepResult.results.forEach((actionResult) => {
+            commentBody += `- [ ] Rename **${actionResult.file}** to **${actionResult.details}**\n`;
+        });
+        commentBody += `
+> [!warning]
+> Remember to add the \`:page-aliases:\` attribute after renaming any **existing files** to prevent broken links or references.`;
+        return commentBody;
+    }
+    toKebabCase(str) {
+        // Split the file name and extension
+        const parts = str.split(".");
+        const fileName = parts.slice(0, -1).join("."); // Handle multiple dots before the extension
+        const extension = parts.slice(-1)[0];
+        // Convert the file name part to kebab-case
+        const kebabFileName = fileName
+            .replace(/([a-z])([A-Z])/g, "$1-$2") // Add dash between camelCase letters
+            .replace(/_/g, "-") // Replace underscores with dashes
+            .toLowerCase(); // Convert to lowercase
+        // Join the kebab-case file name with the extension
+        return `${kebabFileName}.${extension}`;
+    }
+    validate(octokit) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const results = [];
+            let hasErrors = false;
+            const kebabCaseRegex = /^[a-z0-9]+(-[a-z0-9]+)*(?=\.[a-z]+$)/;
+            this.files.forEach((filePath) => {
+                const fileName = filePath.split("/").pop();
+                if (fileName && !kebabCaseRegex.test(fileName)) {
+                    hasErrors = true;
+                    results.push({ file: fileName, details: this.toKebabCase(fileName) });
+                }
+            });
+            this.stepResult = {
+                status: hasErrors ? validation_1.Status.ERROR : validation_1.Status.SUCCESS,
+                results: results,
+            };
+            return this.stepResult;
+        });
+    }
+    /**
+     * Check if the file extension is allowed
+     * @param files
+     * @param extensionsToCheck
+     * @private
+     */
+    filterFiles(files, extensionsToCheck) {
+        return files.filter((filePath) => this.isExtensionAllowed(filePath, extensionsToCheck) &&
+            filePath.includes("modules/"));
+    }
+}
+exports.PageFilenameStep = PageFilenameStep;
+
+
+/***/ }),
+
 /***/ 7452:
 /***/ ((__unused_webpack_module, exports) => {
 
@@ -29702,6 +29820,7 @@ var AvailableStep;
 (function (AvailableStep) {
     AvailableStep["AttributeChecking"] = "attributes-checking";
     AvailableStep["ForbiddenPattern"] = "forbidden-pattern";
+    AvailableStep["PageFilename"] = "page-filename";
 })(AvailableStep || (exports.AvailableStep = AvailableStep = {}));
 
 
