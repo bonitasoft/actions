@@ -29346,12 +29346,13 @@ function run() {
                 actions_common_1.FILE_STATE.REMOVED,
                 actions_common_1.FILE_STATE.MODIFIED,
                 actions_common_1.FILE_STATE.ADDED,
+                actions_common_1.FILE_STATE.RENAMED,
             ]);
             const commentsWithLinks = new CommentsWithLinks_1.CommentsWithLinks(template);
             const addModifyFiles = modifiedFiles
-                .filter((file) => [actions_common_1.FILE_STATE.MODIFIED, actions_common_1.FILE_STATE.ADDED].includes(file.status))
+                .filter((file) => [actions_common_1.FILE_STATE.MODIFIED, actions_common_1.FILE_STATE.ADDED, actions_common_1.FILE_STATE.RENAMED].includes(file.status))
                 .map((file) => file.filename);
-            core.debug(`Add/modify files: ${addModifyFiles.join(", ")}`);
+            core.debug(`Add/modify/renamed files: ${addModifyFiles.join(", ")}`);
             const deletedFiles = modifiedFiles
                 .filter((file) => file.status === actions_common_1.FILE_STATE.REMOVED)
                 .map((file) => file.filename);
@@ -29449,6 +29450,10 @@ var FILE_STATE;
     FILE_STATE["ADDED"] = "added";
     FILE_STATE["REMOVED"] = "removed";
     FILE_STATE["MODIFIED"] = "modified";
+    FILE_STATE["RENAMED"] = "renamed";
+    FILE_STATE["COPIED"] = "copied";
+    FILE_STATE["CHANGED"] = "changed";
+    FILE_STATE["UNCHANGED"] = "unchanged";
 })(FILE_STATE || (exports.FILE_STATE = FILE_STATE = {}));
 /**
  * Publishes a comment on a pull request.
@@ -29514,6 +29519,7 @@ function getFilesFromPR(octokit_1) {
             owner: github.context.repo.owner,
             repo: github.context.repo.repo,
             pull_number: prNumber,
+            per_page: 100,
         });
         core.debug(`PR ${prNumber} contains ${data.length} files`);
         core.debug(`Keep only files with status: ${states.join(" - ")}`);

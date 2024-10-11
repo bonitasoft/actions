@@ -31,6 +31,7 @@ async function run(): Promise<void> {
     const modifiedFiles: FileInfo[] = await getFilesFromPR(octokit, [
       FILE_STATE.MODIFIED,
       FILE_STATE.ADDED,
+      FILE_STATE.RENAMED,
     ]);
 
     const simpleModifiedFiles = modifiedFiles.map((file) => file.filename);

@@ -22,15 +22,18 @@ export async function run(): Promise<void> {
       FILE_STATE.REMOVED,
       FILE_STATE.MODIFIED,
       FILE_STATE.ADDED,
+      FILE_STATE.RENAMED,
     ]);
 
     const commentsWithLinks = new CommentsWithLinks(template);
     const addModifyFiles = modifiedFiles
       .filter((file) =>
-        [FILE_STATE.MODIFIED, FILE_STATE.ADDED].includes(file.status)
+        [FILE_STATE.MODIFIED, FILE_STATE.ADDED, FILE_STATE.RENAMED].includes(
+          file.status
+        )
       )
       .map((file) => file.filename);
-    core.debug(`Add/modify files: ${addModifyFiles.join(", ")}`);
+    core.debug(`Add/modify/renamed files: ${addModifyFiles.join(", ")}`);
     const deletedFiles = modifiedFiles
       .filter((file) => file.status === FILE_STATE.REMOVED)
       .map((file) => file.filename);
