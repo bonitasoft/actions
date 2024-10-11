@@ -64,6 +64,16 @@ describe("comments-pr-with-links", () => {
     expect(mockPublishComment).toHaveBeenCalledTimes(1);
   });
 
+  it("publishes comment with renamed links", async () => {
+    mockGetFilesFromPR.mockResolvedValue([
+      { status: FILE_STATE.RENAMED, filename: "modules/ROOT/pages/faq.adoc" },
+    ]);
+
+    await run();
+
+    expect(mockPublishComment).toHaveBeenCalledTimes(1);
+  });
+
   it("not publishes comment when the files updates or removes not follow the pattern ", async () => {
     mockGetFilesFromPR.mockResolvedValue([
       { status: FILE_STATE.MODIFIED, filename: ".github/toto" },

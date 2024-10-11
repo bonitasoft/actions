@@ -6,6 +6,10 @@ export enum FILE_STATE {
   ADDED = "added",
   REMOVED = "removed",
   MODIFIED = "modified",
+  RENAMED = "renamed",
+  COPIED = "copied",
+  CHANGED = "changed",
+  UNCHANGED = "unchanged",
 }
 
 /**
@@ -84,6 +88,7 @@ export async function getFilesFromPR(
     owner: github.context.repo.owner,
     repo: github.context.repo.repo,
     pull_number: prNumber,
+    per_page: 100,
   });
 
   core.debug(`PR ${prNumber} contains ${data.length} files`);

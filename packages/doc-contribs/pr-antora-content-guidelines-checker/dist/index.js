@@ -29258,6 +29258,7 @@ function run() {
             const modifiedFiles = yield (0, actions_common_1.getFilesFromPR)(octokit, [
                 actions_common_1.FILE_STATE.MODIFIED,
                 actions_common_1.FILE_STATE.ADDED,
+                actions_common_1.FILE_STATE.RENAMED,
             ]);
             const simpleModifiedFiles = modifiedFiles.map((file) => file.filename);
             const filesToCheckInput = core.getInput("files-to-check").split(",");
@@ -29879,6 +29880,10 @@ var FILE_STATE;
     FILE_STATE["ADDED"] = "added";
     FILE_STATE["REMOVED"] = "removed";
     FILE_STATE["MODIFIED"] = "modified";
+    FILE_STATE["RENAMED"] = "renamed";
+    FILE_STATE["COPIED"] = "copied";
+    FILE_STATE["CHANGED"] = "changed";
+    FILE_STATE["UNCHANGED"] = "unchanged";
 })(FILE_STATE || (exports.FILE_STATE = FILE_STATE = {}));
 /**
  * Publishes a comment on a pull request.
@@ -29944,6 +29949,7 @@ function getFilesFromPR(octokit_1) {
             owner: github.context.repo.owner,
             repo: github.context.repo.repo,
             pull_number: prNumber,
+            per_page: 100,
         });
         core.debug(`PR ${prNumber} contains ${data.length} files`);
         core.debug(`Keep only files with status: ${states.join(" - ")}`);
