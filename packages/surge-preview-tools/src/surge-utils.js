@@ -37,7 +37,8 @@ export const checkLogin = surgeToken => {
   }
 };
 
-// Adapted here to pass the surge token
+// Adapted here to pass the surge token, updated after the bump of surge from v23 to v24 that changed the content of the logs
+// See https://github.com/adrianjost/actions-surge.sh-teardown/commit/27d0dc9ab910c2ae46c9389a6f2ca46101ac56a9
 export const getDeploys = surgeToken => {
   const surgeListOutput = executeSurgeCliCmd(`list --token ${surgeToken}`);
   const lines =
@@ -46,10 +47,8 @@ export const getDeploys = surgeToken => {
       .map(l => l.trim().replace(/ {3,}/g, "  "));
   return lines.map(line => {
     const deploy = line.split("  ").map(a => a.trim());
-    const [id, domain] = deploy[0].split(" ");
-    const [, timestamp, provider, host, plan] = deploy;
+    const [domain, timestamp, provider, host, plan] = deploy;
     return {
-      id,
       domain,
       timestamp,
       provider,
