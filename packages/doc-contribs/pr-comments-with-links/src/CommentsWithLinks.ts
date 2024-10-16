@@ -1,6 +1,6 @@
 export interface Links {
   updated: string[];
-  deleted: string[];
+  requiringRedirects: string[];
 }
 
 /**
@@ -55,18 +55,18 @@ export class CommentsWithLinks {
   }
 
   /**
-   * Builds a message containing links to the updated and deleted pages.
+   * Builds a message containing links to the updated and requiringRedirects pages.
    *
-   * @param links - An object containing the updated and deleted links.
+   * @param links - An object containing the updated and requiringRedirects links.
    * @param links.updated - An array of strings containing the links to the updated pages.
-   * @param links.deleted - An array of strings containing the links to the deleted pages.
+   * @param links.requiringRedirects - An array of strings containing the links to the requiringRedirects pages.
    * @returns A string representing the complete message to be published.
    *
    * @example
    * ```typescript
    * const links = {
    *   updated: ['- [ ] [page1](http://example.com/component/1.0/page1)'],
-   *   deleted: ['- [ ] [page2](http://example.com/component/1.0/page2)']
+   *   requiringRedirects: ['- [ ] [page2](http://example.com/component/1.0/page2)']
    * };
    * ```
    */
@@ -84,12 +84,12 @@ ${links?.updated.map((item) => `> ${item}`).join("\n")}`;
     }
 
     let deletedSection = "";
-    if (links?.deleted.length > 0) {
+    if (links?.requiringRedirects.length > 0) {
       deletedSection = `
 ###  :mag: Check redirects
 > [!warning]
 > At least one page has been renamed, moved or deleted in the Pull Request. Make sure you add [**aliases**](https://github.com/bonitasoft/bonita-documentation-site/blob/master/docs/content/CONTRIBUTING.adoc#use-alias-to-create-redirects) and **check that the following links redirect to the right place**:
-${links?.deleted.map((item) => `> ${item}`).join("\n")}`;
+${links?.requiringRedirects.map((item) => `> ${item}`).join("\n")}`;
     }
 
     return this.template

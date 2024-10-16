@@ -32,8 +32,9 @@
   },
   "scripts": {
     "build": "npm run build --workspaces --if-present",
+    "lint": "npm run format --workspaces --if-present",
     "package": "npm run package --workspaces --if-present",
     "package:all": "npm run package:all --workspaces --if-present",
     "test": "npm run test --workspaces --if-present"
-}
+  }
 }

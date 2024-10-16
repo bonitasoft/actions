@@ -43,6 +43,11 @@ describe("github-utils", () => {
           { filename: "file1.ts", status: "modified" },
           { filename: "file2.ts", status: "added" },
           { filename: "file3.ts", status: "removed" },
+          {
+            filename: "file4.ts",
+            status: "renamed",
+            previous_filename: "old_file4.ts",
+          },
         ],
       };
 
@@ -56,6 +61,11 @@ describe("github-utils", () => {
         { filename: "file1.ts", status: "modified" },
         { filename: "file2.ts", status: "added" },
         { filename: "file3.ts", status: "removed" },
+        {
+          filename: "file4.ts",
+          status: "renamed",
+          previous_filename: "old_file4.ts",
+        },
       ]);
       expect(octokit.rest.pulls.listFiles).toHaveBeenCalled();
     });
@@ -66,6 +76,11 @@ describe("github-utils", () => {
           { filename: "file1.ts", status: githubUtils.FILE_STATE.MODIFIED },
           { filename: "file2.ts", status: githubUtils.FILE_STATE.ADDED },
           { filename: "file3.ts", status: githubUtils.FILE_STATE.REMOVED },
+          {
+            filename: "file4.ts",
+            status: githubUtils.FILE_STATE.RENAMED,
+            previous_filename: "old_file4.ts",
+          },
         ],
       };
 

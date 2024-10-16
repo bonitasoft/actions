@@ -1,7 +1,12 @@
-import { run } from "../src/main";
+import { groupFilesByChangeType, run } from "../src/main";
 import * as core from "@actions/core";
 
-import { FILE_STATE, getFilesFromPR, publishComment } from "actions-common";
+import {
+  FILE_STATE,
+  FileInfo,
+  getFilesFromPR,
+  publishComment,
+} from "actions-common";
 
 jest.mock("@actions/core");
 jest.mock("@actions/github", () => ({
@@ -49,7 +54,7 @@ describe("comments-pr-with-links", () => {
     });
   });
 
-  it("publishes comment with updated and deleted links", async () => {
+  it("publishes comment with updated and requiringRedirects links", async () => {
     mockGetFilesFromPR.mockResolvedValue([
       {
         status: FILE_STATE.MODIFIED,
@@ -66,7 +71,11 @@ describe("comments-pr-with-links", () => {
 
   it("publishes comment with renamed links", async () => {
     mockGetFilesFromPR.mockResolvedValue([
-      { status: FILE_STATE.RENAMED, filename: "modules/ROOT/pages/faq.adoc" },
+      {
+        status: FILE_STATE.RENAMED,
+        filename: "modules/ROOT/pages/faq.adoc",
+        previous_filename: "modules/ROOT/pages/faq_old.adoc",
+      },
     ]);
 
     await run();
@@ -91,5 +100,92 @@ describe("comments-pr-with-links", () => {
     await run();
 
     expect(core.setFailed).toHaveBeenCalledWith("Failed to get files");
+  });
+});
+
+describe("groupFilesByChangeType", () => {
+  it("returns filesWithUpdatedContent and filesRequiringRedirects correctly", () => {
+    const files: FileInfo[] = [
+      { status: FILE_STATE.MODIFIED, filename: "file1.adoc" },
+      { status: FILE_STATE.ADDED, filename: "file2.adoc" },
+      {
+        status: FILE_STATE.RENAMED,
+        filename: "file3.adoc",
+        previous_filename: "file3_old.adoc",
+      },
+      { status: FILE_STATE.REMOVED, filename: "file4.adoc" },
+    ];
+
+    const result = groupFilesByChangeType(files);
+
+    expect(result.filesWithUpdatedContent).toEqual([
+      "file1.adoc",
+      "file2.adoc",
+      "file3.adoc",
+    ]);
+    expect(result.filesRequiringRedirects).toEqual([
+      "file3_old.adoc",
+      "file4.adoc",
+    ]);
+  });
+
+  it("returns empty arrays when no files match the criteria", () => {
+    const files: FileInfo[] = [
+      { status: FILE_STATE.REMOVED, filename: "file1.adoc" },
+      { status: FILE_STATE.REMOVED, filename: "file2.adoc" },
+    ];
+
+    const result = groupFilesByChangeType(files);
+
+    expect(result.filesWithUpdatedContent).toEqual([]);
+    expect(result.filesRequiringRedirects).toEqual([
+      "file1.adoc",
+      "file2.adoc",
+    ]);
+  });
+
+  it("handles an empty files array", () => {
+    const files: FileInfo[] = [];
+
+    const result = groupFilesByChangeType(files);
+
+    expect(result.filesWithUpdatedContent).toEqual([]);
+    expect(result.filesRequiringRedirects).toEqual([]);
+  });
+
+  it("handles files with only add/modify/rename states", () => {
+    const files: FileInfo[] = [
+      { status: FILE_STATE.MODIFIED, filename: "file1.adoc" },
+      { status: FILE_STATE.ADDED, filename: "file2.adoc" },
+      {
+        status: FILE_STATE.RENAMED,
+        filename: "file3.adoc",
+        previous_filename: "file3_old.adoc",
+      },
+    ];
+
+    const result = groupFilesByChangeType(files);
+
+    expect(result.filesWithUpdatedContent).toEqual([
+      "file1.adoc",
+      "file2.adoc",
+      "file3.adoc",
+    ]);
+    expect(result.filesRequiringRedirects).toEqual(["file3_old.adoc"]);
+  });
+
+  it("handles files with only removed state", () => {
+    const files: FileInfo[] = [
+      { status: FILE_STATE.REMOVED, filename: "file1.adoc" },
+      { status: FILE_STATE.REMOVED, filename: "file2.adoc" },
+    ];
+
+    const result = groupFilesByChangeType(files);
+
+    expect(result.filesWithUpdatedContent).toEqual([]);
+    expect(result.filesRequiringRedirects).toEqual([
+      "file1.adoc",
+      "file2.adoc",
+    ]);
   });
 });
