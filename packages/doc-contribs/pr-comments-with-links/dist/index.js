@@ -29245,18 +29245,18 @@ class CommentsWithLinks {
         return preparedLinks;
     }
     /**
-     * Builds a message containing links to the updated and deleted pages.
+     * Builds a message containing links to the updated and requiringRedirects pages.
      *
-     * @param links - An object containing the updated and deleted links.
+     * @param links - An object containing the updated and requiringRedirects links.
      * @param links.updated - An array of strings containing the links to the updated pages.
-     * @param links.deleted - An array of strings containing the links to the deleted pages.
+     * @param links.requiringRedirects - An array of strings containing the links to the requiringRedirects pages.
      * @returns A string representing the complete message to be published.
      *
      * @example
      * ```typescript
      * const links = {
      *   updated: ['- [ ] [page1](http://example.com/component/1.0/page1)'],
-     *   deleted: ['- [ ] [page2](http://example.com/component/1.0/page2)']
+     *   requiringRedirects: ['- [ ] [page2](http://example.com/component/1.0/page2)']
      * };
      * ```
      */
@@ -29271,12 +29271,12 @@ class CommentsWithLinks {
 ${links === null || links === void 0 ? void 0 : links.updated.map((item) => `> ${item}`).join("\n")}`;
         }
         let deletedSection = "";
-        if ((links === null || links === void 0 ? void 0 : links.deleted.length) > 0) {
+        if ((links === null || links === void 0 ? void 0 : links.requiringRedirects.length) > 0) {
             deletedSection = `
 ###  :mag: Check redirects
 > [!warning]
 > At least one page has been renamed, moved or deleted in the Pull Request. Make sure you add [**aliases**](https://github.com/bonitasoft/bonita-documentation-site/blob/master/docs/content/CONTRIBUTING.adoc#use-alias-to-create-redirects) and **check that the following links redirect to the right place**:
-${links === null || links === void 0 ? void 0 : links.deleted.map((item) => `> ${item}`).join("\n")}`;
+${links === null || links === void 0 ? void 0 : links.requiringRedirects.map((item) => `> ${item}`).join("\n")}`;
         }
         return this.template
             .concat(header)
@@ -29328,52 +29328,62 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.groupFilesByChangeType = groupFilesByChangeType;
 exports.run = run;
 const core = __importStar(__nccwpck_require__(5316));
 const github = __importStar(__nccwpck_require__(2189));
 const actions_common_1 = __nccwpck_require__(6458);
 const CommentsWithLinks_1 = __nccwpck_require__(3264);
 const template = "<!-- previewLinksCheck-->\n";
+function groupFilesByChangeType(files) {
+    const filesWithUpdatedContent = files
+        .filter((file) => [actions_common_1.FILE_STATE.MODIFIED, actions_common_1.FILE_STATE.ADDED, actions_common_1.FILE_STATE.RENAMED].includes(file.status))
+        .map((file) => file.filename);
+    core.debug(`Files with updated content: ${filesWithUpdatedContent.join(", ")}`);
+    const filesRequiringRedirects = files
+        .filter((file) => [actions_common_1.FILE_STATE.REMOVED, actions_common_1.FILE_STATE.RENAMED].includes(file.status))
+        .map((file) => file.status == actions_common_1.FILE_STATE.REMOVED
+        ? file.filename
+        : file.previous_filename);
+    core.debug(`Files requiring redirects: ${filesRequiringRedirects.join(", ")}`);
+    return { filesWithUpdatedContent, filesRequiringRedirects };
+}
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         var _a, _b, _c;
+        core.debug("Running pr-comments-with-links action");
         try {
             const token = core.getInput("github-token");
             const componentName = core.getInput("component-name");
             const siteUrl = core.getInput("site-url");
             const octokit = github.getOctokit(token);
-            const modifiedFiles = yield (0, actions_common_1.getFilesFromPR)(octokit, [
+            const prFiles = yield (0, actions_common_1.getFilesFromPR)(octokit, [
                 actions_common_1.FILE_STATE.REMOVED,
                 actions_common_1.FILE_STATE.MODIFIED,
                 actions_common_1.FILE_STATE.ADDED,
                 actions_common_1.FILE_STATE.RENAMED,
             ]);
+            core.debug(`PR files: ${prFiles.map((file) => file.filename).join(", ")}`);
+            const { filesWithUpdatedContent, filesRequiringRedirects } = groupFilesByChangeType(prFiles);
             const commentsWithLinks = new CommentsWithLinks_1.CommentsWithLinks(template);
-            const addModifyFiles = modifiedFiles
-                .filter((file) => [actions_common_1.FILE_STATE.MODIFIED, actions_common_1.FILE_STATE.ADDED, actions_common_1.FILE_STATE.RENAMED].includes(file.status))
-                .map((file) => file.filename);
-            core.debug(`Add/modify/renamed files: ${addModifyFiles.join(", ")}`);
-            const deletedFiles = modifiedFiles
-                .filter((file) => file.status === actions_common_1.FILE_STATE.REMOVED)
-                .map((file) => file.filename);
-            core.debug(`Deleted files: ${deletedFiles.join(", ")}`);
-            const links = {};
             // We only have a single version for preview (latest)
             // TODO: Handle "pre-release" (next)
             let version = "latest";
-            links.updated = commentsWithLinks.prepareLinks({
-                files: addModifyFiles,
-                siteUrl: siteUrl,
-                component: componentName,
-                version: version,
-            });
-            links.deleted = commentsWithLinks.prepareLinks({
-                files: deletedFiles,
-                siteUrl: siteUrl,
-                component: componentName,
-                version: version,
-            });
-            if (links.deleted.length === 0 && links.updated.length === 0) {
+            const links = {
+                updated: commentsWithLinks.prepareLinks({
+                    files: filesWithUpdatedContent,
+                    siteUrl: siteUrl,
+                    component: componentName,
+                    version: version,
+                }),
+                requiringRedirects: commentsWithLinks.prepareLinks({
+                    files: filesRequiringRedirects,
+                    siteUrl: siteUrl,
+                    component: componentName,
+                    version: version,
+                }),
+            };
+            if (links.requiringRedirects.length === 0 && links.updated.length === 0) {
                 core.info(`⚠️ No updated or deleted pages were detected`);
             }
             else {
@@ -29525,7 +29535,11 @@ function getFilesFromPR(octokit_1) {
         core.debug(`Keep only files with status: ${states.join(" - ")}`);
         const prFiles = data
             .filter((file) => states.includes(file.status))
-            .map((file) => ({ filename: file.filename, status: file.status }));
+            .map((file) => ({
+            filename: file.filename,
+            status: file.status,
+            previous_filename: file.previous_filename,
+        }));
         core.debug(`Analyze ${prFiles.length} files in PR #${prNumber}: \n ${prFiles.join("\n")}`);
         return prFiles;
     });

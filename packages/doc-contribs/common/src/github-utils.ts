@@ -71,6 +71,7 @@ export async function getFileContent(
 
 export type FileInfo = {
   filename: string;
+  previous_filename?: string;
   status: FILE_STATE;
 };
 export async function getFilesFromPR(
@@ -96,7 +97,11 @@ export async function getFilesFromPR(
 
   const prFiles = data
     .filter((file: any) => states.includes(file.status))
-    .map((file: any) => ({ filename: file.filename, status: file.status }));
+    .map((file: any) => ({
+      filename: file.filename,
+      status: file.status,
+      previous_filename: file.previous_filename,
+    }));
 
   core.debug(
     `Analyze ${prFiles.length} files in PR #${prNumber}: \n ${prFiles.join(
