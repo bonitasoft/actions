@@ -46,7 +46,7 @@ export async function run(): Promise<void> {
     const siteUrl = core.getInput("site-url");
     const octokit: InstanceType<typeof GitHub> = github.getOctokit(token);
 
-    const modifiedFiles: FileInfo[] = await getFilesFromPR(octokit, [
+    const prFiles: FileInfo[] = await getFilesFromPR(octokit, [
       FILE_STATE.REMOVED,
       FILE_STATE.MODIFIED,
       FILE_STATE.ADDED,
@@ -54,7 +54,7 @@ export async function run(): Promise<void> {
     ]);
 
     const { filesWithUpdatedContent, filesRequiringRedirects } =
-      groupFilesByChangeType(modifiedFiles);
+      groupFilesByChangeType(prFiles);
 
     const commentsWithLinks = new CommentsWithLinks(template);
     // We only have a single version for preview (latest)
