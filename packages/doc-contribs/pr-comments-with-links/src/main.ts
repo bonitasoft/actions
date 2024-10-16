@@ -40,6 +40,7 @@ export function groupFilesByChangeType(files: FileInfo[]) {
 }
 
 export async function run(): Promise<void> {
+  core.debug("Running pr-comments-with-links action");
   try {
     const token = core.getInput("github-token");
     const componentName = core.getInput("component-name");
@@ -52,6 +53,7 @@ export async function run(): Promise<void> {
       FILE_STATE.ADDED,
       FILE_STATE.RENAMED,
     ]);
+    core.debug(`PR files: ${prFiles.map((file) => file.filename).join(", ")}`);
 
     const { filesWithUpdatedContent, filesRequiringRedirects } =
       groupFilesByChangeType(prFiles);
