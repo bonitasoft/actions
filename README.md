@@ -6,7 +6,9 @@ Centralized repository providing GitHub Actions developed by Bonitasoft and used
 ## List of actions
 
 - [list-branches](packages/list-branches): list and return branches in JSON filtered by input regex.
-- [pr-antora-content-guidelines-checker](packages/pr-antora-content-guidelines-checker): to check contributions done to the AsciiDoc content of a repository used to produced documentation generated with Antora. Check the diff of a Pull Request, and fail if one or more of the set criteria isn't met.
+- for documentation contributions:
+  - [pr-antora-content-guidelines-checker](packages/doc-contribs/pr-antora-content-guidelines-checker): checks if the updated files follow the recommendation from the Bonita documentation team.
+  - [pr-comments-with-links](packages/doc-contribs/pr-comments-with-links): generate a comment with the link for the added/updated/removed page to the preview.
 - [pr-title-conventional-commits](packages/pr-title-conventional-commits): check that the Pull Request title follows guidelines of [Conventional Commits v1.0.0](https://www.conventionalcommits.org/en/v1.0.0/).
 - [surge-preview-tools](packages/surge-preview-tools): companion of the [surge-preview action](https://github.com/afc163/surge-preview).
 
