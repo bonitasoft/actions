@@ -33165,6 +33165,7 @@ async function getPrNumberByApiSearch(github_context, gitCommitSha) {
         advanced_search: true, // required to prepare forced usage. See https://github.blog/changelog/2025-03-06-github-issues-projects-api-support-for-issues-advanced-search-and-more/
       };
       try {
+        const token = _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput('github-token', { required: true });
         const octokit = _actions_github__WEBPACK_IMPORTED_MODULE_1__.getOctokit(token);
         const result = await octokit.rest.search.issuesAndPullRequests(query);
         const pr = result.data.items.length > 0 && result.data.items[0];
@@ -33185,7 +33186,6 @@ try {
    * @returns prNumber
    */
   const getPrNumber = async (github_context) => {
-    const token = _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput('github-token', { required: true });
     const {payload} = github_context;
     const gitCommitSha =
     payload?.pull_request?.head?.sha ||
