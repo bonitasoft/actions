@@ -3,6 +3,28 @@ import * as github from "@actions/github";
 import { checkLogin, getDeploys, getSurgeCliVersion } from "./surge-utils";
 import { checkIfDomainExist, computeSurgeDomain } from "./utils.mjs";
 
+// TODO use debug logs
+async function getPrNumberByApiSearch(github_context, gitCommitSha) {
+      core.info(`Searching PR related to commit: ${gitCommitSha}`);
+      // Inspired by https://github.com/orgs/community/discussions/25220#discussioncomment-8697399
+      const query = {
+        q: `repo:${github_context.repo.owner}/${github_context.repo.repo} AND is:pr AND sha:${gitCommitSha}`,
+        per_page: 1,
+        advanced_search: true, // required to prepare forced usage. See https://github.blog/changelog/2025-03-06-github-issues-projects-api-support-for-issues-advanced-search-and-more/
+      };
+      try {
+        const result = await octokit.rest.search.issuesAndPullRequests(query);
+        const pr = result.data.items.length > 0 && result.data.items[0];
+        core.info(`Found related pull_request: ${JSON.stringify(pr, null, 2)}`);
+        return pr ? pr.number : undefined;
+      } catch (e) {
+        // As mentioned in https://github.com/orgs/community/discussions/25220#discussioncomment-8971083
+        // from time to time, you may get rate limit errors given search API seems to use many calls internally.
+        core.warning(`Unable to get the PR number with API search: ${e}`);
+      }
+}
+
+
 try {
   /**
    * Retrieve the PR number
@@ -11,32 +33,19 @@ try {
    */
   const getPrNumber = async (github_context) => {
     const token = core.getInput('github-token', { required: true });
-    const octokit = github.getOctokit(token);
     const {payload} = github_context;
     const gitCommitSha =
     payload?.pull_request?.head?.sha ||
     payload?.workflow_run?.head_sha;
 
     if (payload.number && payload.pull_request) {
-      core.debug(`prNumber retrieved from pull_request ${payload.number}`);      
+      core.debug(`prNumber retrieved from pull_request ${payload.number}`);
+      // TODO temp to test when runnning on a PR
+      await getPrNumberByApiSearch(github_context, gitCommitSha);      
       return payload.number;
     } else {
       core.debug('Not a pull_request, so doing a API search');
-      // Inspired by https://github.com/orgs/community/discussions/25220#discussioncomment-8697399
-      const query = {
-        q: `repo:${github_context.repo.owner}/${github_context.repo.repo} is:pr sha:${gitCommitSha}`,
-        per_page: 1,
-      };
-      try {
-        const result = await octokit.rest.search.issuesAndPullRequests(query);
-        const pr = result.data.items.length > 0 && result.data.items[0];
-        core.debug(`Found related pull_request: ${JSON.stringify(pr, null, 2)}`);
-        return pr ? pr.number : undefined;
-      } catch (e) {
-        // As mentioned in https://github.com/orgs/community/discussions/25220#discussioncomment-8971083
-        // from time to time, you may get rate limit errors given search API seems to use many calls internally.
-        core.warning(`Unable to get the PR number with API search: ${e}`);
-      }
+      return await getPrNumberByApiSearch(github_context, gitCommitSha);
     }
   }
 
