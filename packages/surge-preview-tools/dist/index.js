@@ -33155,8 +33155,9 @@ __nccwpck_require__.r(__webpack_exports__);
 
 
 
+// TODO use debug logs
 async function getPrNumberByApiSearch(github_context, gitCommitSha) {
-      _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`Searching PR related to commit: ${gitCommitSha}`);
+      _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Searching PR related to commit: ${gitCommitSha}`);
       // Inspired by https://github.com/orgs/community/discussions/25220#discussioncomment-8697399
       const query = {
         q: `repo:${github_context.repo.owner}/${github_context.repo.repo} AND is:pr AND sha:${gitCommitSha}`,
@@ -33168,7 +33169,7 @@ async function getPrNumberByApiSearch(github_context, gitCommitSha) {
         const octokit = _actions_github__WEBPACK_IMPORTED_MODULE_1__.getOctokit(token);
         const result = await octokit.rest.search.issuesAndPullRequests(query);
         const pr = result.data.items.length > 0 && result.data.items[0];
-        _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`Found related pull_request: ${JSON.stringify(pr, null, 2)}`);
+        _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Found related pull_request: ${JSON.stringify(pr, null, 2)}`);
         return pr ? pr.number : undefined;
       } catch (e) {
         // As mentioned in https://github.com/orgs/community/discussions/25220#discussioncomment-8971083
@@ -33191,20 +33192,22 @@ try {
     payload?.workflow_run?.head_sha;
 
     if (payload.number && payload.pull_request) {
-      _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`pull_request event, so retrieving the PR number from payload`);
+      _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`prNumber retrieved from pull_request ${payload.number}`);
+      // TODO temp to test when runnning on a PR
+      await getPrNumberByApiSearch(github_context, gitCommitSha);      
       return payload.number;
     } else {
-      _actions_core__WEBPACK_IMPORTED_MODULE_0__.info('Not a pull_request event, so doing an API search to get the PR number');
+      _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug('Not a pull_request, so doing a API search');
       return await getPrNumberByApiSearch(github_context, gitCommitSha);
     }
   }
 
   const surgeCliVersion = (0,_surge_utils__WEBPACK_IMPORTED_MODULE_2__/* .getSurgeCliVersion */ .re)();
   _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Surge cli version: ${surgeCliVersion}`);
-
+  
   const {job, payload} = _actions_github__WEBPACK_IMPORTED_MODULE_1__.context;
   const prNumber= await getPrNumber(_actions_github__WEBPACK_IMPORTED_MODULE_1__.context);
-  _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Retrieved PR number: ${prNumber}`);
+  _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Find PR number: ${prNumber}`);
   if(prNumber === undefined){
     _actions_core__WEBPACK_IMPORTED_MODULE_0__.setFailed('No PR number found');
   }

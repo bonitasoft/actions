@@ -3,8 +3,9 @@ import * as github from "@actions/github";
 import { checkLogin, getDeploys, getSurgeCliVersion } from "./surge-utils";
 import { checkIfDomainExist, computeSurgeDomain } from "./utils.mjs";
 
+// TODO use debug logs
 async function getPrNumberByApiSearch(github_context, gitCommitSha) {
-      core.debug(`Searching PR related to commit: ${gitCommitSha}`);
+      core.info(`Searching PR related to commit: ${gitCommitSha}`);
       // Inspired by https://github.com/orgs/community/discussions/25220#discussioncomment-8697399
       const query = {
         q: `repo:${github_context.repo.owner}/${github_context.repo.repo} AND is:pr AND sha:${gitCommitSha}`,
@@ -16,7 +17,7 @@ async function getPrNumberByApiSearch(github_context, gitCommitSha) {
         const octokit = github.getOctokit(token);
         const result = await octokit.rest.search.issuesAndPullRequests(query);
         const pr = result.data.items.length > 0 && result.data.items[0];
-        core.debug(`Found related pull_request: ${JSON.stringify(pr, null, 2)}`);
+        core.info(`Found related pull_request: ${JSON.stringify(pr, null, 2)}`);
         return pr ? pr.number : undefined;
       } catch (e) {
         // As mentioned in https://github.com/orgs/community/discussions/25220#discussioncomment-8971083
@@ -39,20 +40,22 @@ try {
     payload?.workflow_run?.head_sha;
 
     if (payload.number && payload.pull_request) {
-      core.info(`pull_request event, so retrieving the PR number from payload`);
+      core.debug(`prNumber retrieved from pull_request ${payload.number}`);
+      // TODO temp to test when runnning on a PR
+      await getPrNumberByApiSearch(github_context, gitCommitSha);      
       return payload.number;
     } else {
-      core.info('Not a pull_request event, so doing an API search to get the PR number');
+      core.debug('Not a pull_request, so doing a API search');
       return await getPrNumberByApiSearch(github_context, gitCommitSha);
     }
   }
 
   const surgeCliVersion = getSurgeCliVersion();
   core.info(`Surge cli version: ${surgeCliVersion}`);
-
+  
   const {job, payload} = github.context;
   const prNumber= await getPrNumber(github.context);
-  core.info(`Retrieved PR number: ${prNumber}`);
+  core.info(`Find PR number: ${prNumber}`);
   if(prNumber === undefined){
     core.setFailed('No PR number found');
   }
