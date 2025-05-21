@@ -33155,31 +33155,17 @@ __nccwpck_require__.r(__webpack_exports__);
 
 
 
-try {
-  /**
-   * Retrieve the PR number
-   * Inspired by https://github.com/afc163/surge-preview/blob/main/src/main.ts
-   * @returns prNumber
-   */
-  const getPrNumber = async (github_context) => {
-    const token = _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput('github-token', { required: true });
-    const octokit = _actions_github__WEBPACK_IMPORTED_MODULE_1__.getOctokit(token);
-    const {payload} = github_context;
-    const gitCommitSha =
-    payload?.pull_request?.head?.sha ||
-    payload?.workflow_run?.head_sha;
-
-    if (payload.number && payload.pull_request) {
-      _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`prNumber retrieved from pull_request ${payload.number}`);      
-      return payload.number;
-    } else {
-      _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug('Not a pull_request, so doing a API search');
+async function getPrNumberByApiSearch(github_context, gitCommitSha) {
+      _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`Searching PR related to commit: ${gitCommitSha}`);
       // Inspired by https://github.com/orgs/community/discussions/25220#discussioncomment-8697399
       const query = {
-        q: `repo:${github_context.repo.owner}/${github_context.repo.repo} is:pr sha:${gitCommitSha}`,
+        q: `repo:${github_context.repo.owner}/${github_context.repo.repo} AND is:pr AND sha:${gitCommitSha}`,
         per_page: 1,
+        advanced_search: true, // required to prepare forced usage. See https://github.blog/changelog/2025-03-06-github-issues-projects-api-support-for-issues-advanced-search-and-more/
       };
       try {
+        const token = _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput('github-token', { required: true });
+        const octokit = _actions_github__WEBPACK_IMPORTED_MODULE_1__.getOctokit(token);
         const result = await octokit.rest.search.issuesAndPullRequests(query);
         const pr = result.data.items.length > 0 && result.data.items[0];
         _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`Found related pull_request: ${JSON.stringify(pr, null, 2)}`);
@@ -33189,15 +33175,36 @@ try {
         // from time to time, you may get rate limit errors given search API seems to use many calls internally.
         _actions_core__WEBPACK_IMPORTED_MODULE_0__.warning(`Unable to get the PR number with API search: ${e}`);
       }
+}
+
+
+try {
+  /**
+   * Retrieve the PR number
+   * Inspired by https://github.com/afc163/surge-preview/blob/main/src/main.ts
+   * @returns prNumber
+   */
+  const getPrNumber = async (github_context) => {
+    const {payload} = github_context;
+    const gitCommitSha =
+    payload?.pull_request?.head?.sha ||
+    payload?.workflow_run?.head_sha;
+
+    if (payload.number && payload.pull_request) {
+      _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`pull_request event, so retrieving the PR number from payload`);
+      return payload.number;
+    } else {
+      _actions_core__WEBPACK_IMPORTED_MODULE_0__.info('Not a pull_request event, so doing an API search to get the PR number');
+      return await getPrNumberByApiSearch(github_context, gitCommitSha);
     }
   }
 
   const surgeCliVersion = (0,_surge_utils__WEBPACK_IMPORTED_MODULE_2__/* .getSurgeCliVersion */ .re)();
   _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Surge cli version: ${surgeCliVersion}`);
-  
+
   const {job, payload} = _actions_github__WEBPACK_IMPORTED_MODULE_1__.context;
   const prNumber= await getPrNumber(_actions_github__WEBPACK_IMPORTED_MODULE_1__.context);
-  _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Find PR number: ${prNumber}`);
+  _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Retrieved PR number: ${prNumber}`);
   if(prNumber === undefined){
     _actions_core__WEBPACK_IMPORTED_MODULE_0__.setFailed('No PR number found');
   }
