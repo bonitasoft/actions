@@ -23,6 +23,7 @@ jobs:
         uses: actions/setup-node@v5
         with:
           node-version-file: 'packages/surge-preview-tools/.nvmrc'
+          cache: npm
       - name: Install and Test
         run: npm ci && npm run all
         working-directory: packages/surge-preview-tools
