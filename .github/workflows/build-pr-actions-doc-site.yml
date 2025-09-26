@@ -26,7 +26,6 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v5
         with:
-          cache: npm
           node-version-file: 'packages/doc-contribs/.nvmrc'
       - name: Install and Test
         run: npm ci && npm run package:all
