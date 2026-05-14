@@ -36,7 +36,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }} // optional
           attributes-to-check: ':description:'
           files-to-check: 'adoc'
-          forbidden-pattern-to-check: 'https://documentation.bonitasoft.com, link:'
+          forbidden-pattern-to-check: 'https://documentation.ofelia.com, link:'
           steps-to-skip: ''
 ```
 
