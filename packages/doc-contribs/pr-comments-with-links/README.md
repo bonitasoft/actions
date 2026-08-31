@@ -22,7 +22,7 @@ on: [pull_request]
 
 jobs:
   comment_pr_with_links:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     permissions:
       pull-requests: write
     steps:      
