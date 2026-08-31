@@ -12,25 +12,21 @@ outputs:
 runs:
   using: "composite"
   steps:
-    - name: Install jo
-      shell: bash
-      run: |
-        sudo apt-get update
-        sudo apt-get install jo
     - name: List branches
       shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
+        BRANCHES_LIST: ${{ inputs.branches_list }}
       run: |
-        git remote set-branches origin '*'
-        git fetch
-        readarray branches <<< $(git branch --remote --format='%(refname:lstrip=3)' | tr '\n' ' ' | awk '{$1=$1};1')
-        
-        # Create json object from branch list
-        json=$(jo -a $branches | jq -c 'map(. | tostring)')
-        
-        # Create regex from input
-        regex=$(jo -a ${{inputs.branches_list}} | jq -c 'map(. | tostring | . |= "^"+ . +"$") | join("|")' | tr -d \")
-        branchList=$(echo $json | jq -c --arg regex $regex 'map(select(test($regex)?))')
-        echo "Computed branch list: $branchList" 
+        # Create regex from input: "master dev release-.*" -> "master|dev|release-.*"
+        regex=$(echo "$BRANCHES_LIST" | tr -s ' ' '|')
+
+        # grep -x anchors the match on the whole branch name, jq builds the json array
+        branchList=$(gh api "repos/${GITHUB_REPOSITORY}/branches?per_page=100" --paginate --jq '.[].name' \
+          | { grep -Ex "$regex" || true; } \
+          | jq -Rsc 'split("\n") | map(select(length > 0))')
+
+        echo "Computed branch list: $branchList"
         # set the output
-        echo "branches=$branchList" >> $GITHUB_OUTPUT
+        echo "branches=$branchList" >> "$GITHUB_OUTPUT"
       id: extract_branches
