@@ -21,12 +21,12 @@ permissions:
 jobs:
   check-outputs:
     name: Check the branches output
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     outputs:
       branches: ${{ steps.exact_name.outputs.branches }}
     steps:
       - name: Checkout source
-        uses: actions/checkout@v5 # access to the local action
+        uses: actions/checkout@v7 # access to the local action
 
       - name: List a branch by its exact name
         id: exact_name
@@ -78,7 +78,7 @@ jobs:
 
   matrix-usage:
     name: Consume the branches output in a matrix
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs: check-outputs
     strategy:
       fail-fast: false

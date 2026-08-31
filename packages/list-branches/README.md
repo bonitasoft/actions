@@ -40,7 +40,7 @@ on:
 
 jobs:
   list-branches:
-      runs-on: ubuntu-22.04
+      runs-on: ubuntu-24.04
       outputs:
         branches: ${{ steps.listBranches.outputs.branches }}
       steps:
@@ -51,7 +51,7 @@ jobs:
             branches_list: "dev master release-7.14.*"
 
   download-l10n-from-crowdin:
-      runs-on: ubuntu-22.04
+      runs-on: ubuntu-24.04
       needs: list-branches
       strategy:
         max-parallel: 1
@@ -60,7 +60,7 @@ jobs:
           branch: ${{ fromJSON(needs.listBranches.outputs.branches) }}
       steps:
         - name: Checkout Repo
-          uses: actions/checkout@v3
+          uses: actions/checkout@v7
           with:
             ref: ${{ matrix.branch }}
             path: ./repo
