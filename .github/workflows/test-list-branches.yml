@@ -1,13 +1,16 @@
 name: Test list-branches action
 
 on:
+  workflow_dispatch: # run the tests on demand
   pull_request:
+    branches:
+      - main
     paths:
       - 'packages/list-branches/**'
       - '.github/workflows/test-list-branches.yml'
   push:
     branches:
-      - main # on other branches the pull_request trigger already runs this workflow
+      - main
     paths:
       - 'packages/list-branches/**'
       - '.github/workflows/test-list-branches.yml'
