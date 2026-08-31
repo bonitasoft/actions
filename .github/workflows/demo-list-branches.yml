@@ -8,6 +8,9 @@ on:
         required: true
         default: "main"
 
+permissions:
+  contents: read # list the branches of this repository through the GitHub API
+
 jobs:
   list-branches:
     runs-on: ubuntu-22.04
@@ -15,7 +18,7 @@ jobs:
       branches: ${{ steps.listBranches.outputs.branches }}
     steps:
       - name: Checkout source
-        uses: actions/checkout@v5 # access to the local action and list branches of this repository
+        uses: actions/checkout@v5 # access to the local action
       - name: List branches on repository
         id: listBranches
         uses: ./packages/list-branches # local action

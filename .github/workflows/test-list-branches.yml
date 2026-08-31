@@ -1,0 +1,88 @@
+name: Test list-branches action
+
+on:
+  pull_request:
+    paths:
+      - 'packages/list-branches/**'
+      - '.github/workflows/test-list-branches.yml'
+  push:
+    branches:
+      - main # on other branches the pull_request trigger already runs this workflow
+    paths:
+      - 'packages/list-branches/**'
+      - '.github/workflows/test-list-branches.yml'
+
+permissions:
+  contents: read # list the branches of this repository through the GitHub API
+
+jobs:
+  check-outputs:
+    name: Check the branches output
+    runs-on: ubuntu-22.04
+    outputs:
+      branches: ${{ steps.exact_name.outputs.branches }}
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v5 # access to the local action
+
+      - name: List a branch by its exact name
+        id: exact_name
+        uses: ./packages/list-branches
+        with:
+          branches_list: "main"
+
+      - name: List branches with several patterns
+        id: several_patterns
+        uses: ./packages/list-branches
+        with:
+          branches_list: "main no-such-branch-.*"
+
+      - name: List branches matching nothing
+        id: no_match
+        uses: ./packages/list-branches
+        with:
+          branches_list: "no-such-branch-.*"
+
+      - name: List branches with a partial name
+        id: partial_name # patterns are anchored: "ai" must not match "main"
+        uses: ./packages/list-branches
+        with:
+          branches_list: "ai"
+
+      - name: Assert the outputs
+        env:
+          EXACT_NAME: ${{ steps.exact_name.outputs.branches }}
+          SEVERAL_PATTERNS: ${{ steps.several_patterns.outputs.branches }}
+          NO_MATCH: ${{ steps.no_match.outputs.branches }}
+          PARTIAL_NAME: ${{ steps.partial_name.outputs.branches }}
+        run: |
+          failures=0
+          assert_eq() {
+            if [ "$2" = "$3" ]; then
+              echo "✅ $1"
+            else
+              echo "❌ $1: expected '$3', got '$2'"
+              failures=$((failures + 1))
+            fi
+          }
+
+          assert_eq "an exact name returns the branch" "$EXACT_NAME" '["main"]'
+          assert_eq "patterns matching nothing are ignored" "$SEVERAL_PATTERNS" '["main"]'
+          assert_eq "no match returns an empty array" "$NO_MATCH" '[]'
+          assert_eq "patterns are anchored" "$PARTIAL_NAME" '[]'
+
+          [ "$failures" -eq 0 ] || exit 1
+
+  matrix-usage:
+    name: Consume the branches output in a matrix
+    runs-on: ubuntu-22.04
+    needs: check-outputs
+    strategy:
+      fail-fast: false
+      matrix:
+        branch: ${{ fromJSON(needs.check-outputs.outputs.branches) }}
+    steps:
+      - name: Check the matrix value
+        run: |
+          echo "Running on branch '${{ matrix.branch }}'"
+          [ "${{ matrix.branch }}" = "main" ]
