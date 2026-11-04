@@ -49,7 +49,7 @@ on:
     types: [opened, edited, reopened]
 jobs:
   pr-title:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     permissions:
       pull-requests: write # post comments when the Pull Request title doesn't match the "Conventional Commits" rules
     steps:
