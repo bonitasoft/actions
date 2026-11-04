@@ -1,6 +1,6 @@
-# Bonitasoft GitHub Actions
+# Ofelia GitHub Actions
 
-Centralized repository providing GitHub Actions developed by Bonitasoft and used in our CI/CD pipelines.
+Centralized repository providing GitHub Actions developed by Ofelia and used in our CI/CD pipelines.
 
 
 ## List of actions
